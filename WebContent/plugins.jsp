@@ -34,7 +34,7 @@
 <jsp:include page="header.jspf" />
 
 <%
-    Set<Tuple2<String, ? extends Class<?>>> categories = Sets.newHashSet(
+    Set<Tuple2<String, ? extends Class<? extends Object>>> categories = Sets.newHashSet(
             Tuple.makeTuple("Database Interfaces", DBInterface.class),
             Tuple.makeTuple("Graph Factories", GraphFactory.class),
             Tuple.makeTuple("Feature Compatability Checkers", 

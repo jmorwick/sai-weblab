@@ -1,13 +1,4 @@
-<%
-    try { 
-        Class<?> clazz = Class.forName("SAIInit");
-        clazz.getMethod("init").invoke(null);
-    } catch(ReflectiveOperationException e) {
-        
-    } catch(SecurityException e) {
-        
-    }
-%><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
