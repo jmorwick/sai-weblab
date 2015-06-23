@@ -138,12 +138,15 @@ public class Resources extends HttpServlet {
     
     // helper which determines if a parameter could possibly be satisified by 
     // arguments supplied to instantiate. 
+    /*
     private static boolean canSatisfyParameter(Parameter p) {
         return Sets.newHashSet("int", "long", "boolean", "short",
                 "byte", "char", "float", "double", "java.lang.String"
             ).contains(p.getType().getCanonicalName()) ||
             Plugins.PLUGINS.contains(p.getType());
     }
+    */
+    
     
     // helper which generates a portion of the form for selecting an argument
     // value
@@ -158,7 +161,7 @@ public class Resources extends HttpServlet {
                 "byte", "char", "float", "double", "java.lang.String"
             ).contains(p.getType().getCanonicalName()))
             acc += "<input name='arguments' type='text'>";
-        else if(Plugins.PLUGINS.contains(p.getType())) { 
+        else { 
         // locate any applicable instances for a select and include null
             acc += "<select name='arguments'>";
             acc += "  <option value='null'>null</option>";
@@ -170,7 +173,7 @@ public class Resources extends HttpServlet {
                 }
             }
             acc += "</select>";
-        } else throw new IllegalArgumentException("no way to satisfy parameter");
+        } 
         acc += "</li>";
         return acc;
     }
@@ -299,16 +302,6 @@ public class Resources extends HttpServlet {
         int n = 1;
         //create a form for each constructor
         for(Constructor cn : c.getConstructors()) { 
-            
-            // determine if it's possible to provide arguments for each of
-            // the parameters for this constructor...
-            boolean possible = true;
-            for(Parameter p : cn.getParameters()) 
-                if(!canSatisfyParameter(p))
-                    possible = false;
-            if(!possible) { // if it's not, skip this constructor
-                continue;
-            }
             
             // if another form has already been output, separate it
             if (!firstForm) {

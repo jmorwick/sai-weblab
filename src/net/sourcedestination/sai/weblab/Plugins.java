@@ -18,19 +18,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "Plugins", urlPatterns = {"/Plugins"})
 public class Plugins extends HttpServlet {
-
-    
-      
-    /** plugin classes may only be registered (and thus instantiated) if they
-     * are or extend one of these types
-     */
-    public static final Class<?>[] ALLOWED_SUPERCLASSES = 
-            new Class<?>[] {
-                    net.sourcedestination.sai.graph.GraphFactory.class,
-                    net.sourcedestination.sai.db.DBInterface.class,
-                    java.io.File.class,
-                    java.lang.Integer.class
-            };
     
     
     /** collection of all classes which can be instantiated as plugins.
@@ -81,18 +68,6 @@ public class Plugins extends HttpServlet {
             // ensure the plugin class is concrete
             if(Modifier.isAbstract(plugin.getModifiers())) {
                 response.sendError(400, "plugin class must be instantiable");
-                return;
-            }
-            
-            // ensure we're alloed to use this plugin 
-            boolean allowed = false;
-            for(Class c : ALLOWED_SUPERCLASSES) {
-                if(c.isAssignableFrom(plugin)) {
-                    allowed = true;
-                }
-            }
-            if(!allowed) {
-                response.sendRedirect("plugins.jsp");
                 return;
             }
             

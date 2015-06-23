@@ -26,6 +26,7 @@
 <%@page import="java.util.Set"%>
 <%@page import="net.sourcedestination.sai.graph.GraphFactory"%>
 <%@page import="net.sourcedestination.sai.db.DBInterface"%>
+<%@page import="net.sourcedestination.sai.task.TaskInitiator"%>
 <%@page import="java.util.Map"%>
 <%@page import="net.sourcedestination.sai.weblab.Databases"%>
 <%@page import="net.sourcedestination.sai.weblab.Graphs"%>
@@ -36,6 +37,7 @@
 <%
     Set<Tuple2<String, ? extends Class<? extends Object>>> categories = Sets.newHashSet(
             Tuple.makeTuple("Database Interfaces", DBInterface.class),
+            Tuple.makeTuple("Task Initiators", TaskInitiator.class),
             Tuple.makeTuple("Graph Factories", GraphFactory.class),
             Tuple.makeTuple("Feature Compatability Checkers", 
                     FeatureCompatibilityChecker.class),
