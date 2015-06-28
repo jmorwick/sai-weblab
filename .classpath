@@ -14,7 +14,7 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Funcles"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/SAI"/>
 	<classpathentry kind="lib" path="/SAI/lib/guava-18.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SAI"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

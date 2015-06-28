@@ -36,7 +36,7 @@ public class BinaryTreeGenerator implements Supplier<Graph> {
 		MutableGraph g = new MutableGraph();
 		g.addNode(nid);
 		g.addNodeFeature(nid, getNodeFeature());
-
+		nid++;
 		// add nodes/edges
 		while (nid < size) {
 			// look for position to insert new node

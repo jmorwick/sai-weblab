@@ -13,6 +13,7 @@
     Created on : Jul 6, 2014, 3:55:04 PM
     Author     : Joey Kendall-Morwick <jkendallmorwick@capital.edu>
 --%>
+<%@page import="net.sourcedestination.funcles.consumer.Consumer2"%>
 <%@page import="net.sourcedestination.funcles.tuple.Tuple2"%>
 <%@page import="net.sourcedestination.sai.weblab.Databases"%>
 <%@page import="net.sourcedestination.sai.weblab.Resources"%>
@@ -27,4 +28,21 @@
     }
     %>
 </select>
+
+<% // Why is the commented out code producing an "uncaught IOException" error?
+//Databases.getDBInterfaces().stream().forEach(
+//		(Consumer2<String,DBInterface>)(name, db) -> {
+for(Tuple2<String,DBInterface> t : Databases.getDBInterfaces()) {
+	String name = t.a1();
+	DBInterface db = t.a2();
+
+%>
+<div>
+  <h2><%= name %></h2>
+  <b>size: </b> <%= db.getDatabaseSize() %>
+</div>
+<% }
+// });   // used with commented out code above
+%>
+
 <jsp:include page="footer.jspf" />
