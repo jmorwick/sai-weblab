@@ -26,6 +26,19 @@ for(Tuple2<String, Supplier<Task>> t : Tasks.getInitiators()) {
 
 <% // TODO: include all task details
 for(Task t : Tasks.TASKS) {
+	if(!t.running()) continue;
+%>  <option><%=t.getTaskName()+"("+t.getProgressUnits()+")("+t.getPercentageDone()+"%)" 
+ + (Tasks.CRASHED_TASKS.containsKey(t) ? Tasks.CRASHED_TASKS.get(t).getMessage() : "")
+%></option>
+<%
+}
+%>
+
+<h1>Inactive Tasks:</h1>
+
+<% // TODO: include all task details
+for(Task t : Tasks.TASKS) {
+	if(t.running()) continue;
 %>  <option><%=t.getTaskName()+"("+t.getProgressUnits()+")("+t.getPercentageDone()+"%)" 
  + (Tasks.CRASHED_TASKS.containsKey(t) ? Tasks.CRASHED_TASKS.get(t).getMessage() : "")
 %></option>
