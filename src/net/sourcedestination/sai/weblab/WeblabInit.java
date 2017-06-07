@@ -18,7 +18,9 @@ public class WeblabInit implements ServletContextListener {
 
     public void contextInitialized(ServletContextEvent sce) { 
     	// register plugin classes
-    	for(String classname: sce.getServletContext().getInitParameter("sai-weblab-plugins").split("\\s+")) {
+        String pluginsParam = sce.getServletContext().getInitParameter("sai-weblab-plugins");
+        if(pluginsParam == null) pluginsParam = "";
+    	for(String classname: pluginsParam.split("\\s+")) {
             Class<?> plugin = null;
             try {
                 plugin = Class.forName(classname); // load the class
