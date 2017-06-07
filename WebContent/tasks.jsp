@@ -11,7 +11,7 @@
 <select name="initiator">
 <%
 for(Tuple2<String, Supplier<Task>> t : Tasks.getInitiators()) {
-%>  <option><%= t.a1() %></option>
+%>  <option><%= t._1() %></option>
 <%
 }
 

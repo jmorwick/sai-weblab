@@ -63,8 +63,8 @@
     Set<String> liveCategories = Sets.newHashSet();
     for(Tuple2<String, ? extends Class<?>> category : categories) { 
         for(Class c : Plugins.PLUGINS) {
-            if(category.a2().isAssignableFrom(c)) {
-                liveCategories.add(category.a1());
+            if(category._2().isAssignableFrom(c)) {
+                liveCategories.add(category._1());
                 specializedPlugins.add(c);
             }
             Resources.getInstantiationForm(request, out, "", "./Resources", "POST", c);
@@ -74,12 +74,12 @@
 
 <div class="plugininfo" ID="dbplugins">
     <% for(Tuple2<String, ? extends Class<?>> category : categories) 
-        if(liveCategories.contains(category.a1())) { %>
-    <h1><%= category.a1() %></h1>
+        if(liveCategories.contains(category._1())) { %>
+    <h1><%= category._1() %></h1>
     <ul>
         <%
             for(Class c : Plugins.PLUGINS) {
-                if(category.a2().isAssignableFrom(c)) {
+                if(category._2().isAssignableFrom(c)) {
                 %>
                 <li onClick='showCreationForm("", "<%= c.getCanonicalName() %>");'>
                     <%= c.getSimpleName() %>

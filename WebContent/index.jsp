@@ -24,7 +24,7 @@
 <select name="db">
     <%
     for(Tuple2<String, DBInterface> t : Databases.getDBInterfaces()) {
-    %><option><%= t.a1() %></option><%
+    %><option><%= t._1() %></option><%
     }
     %>
 </select>
@@ -33,8 +33,8 @@
 //Databases.getDBInterfaces().stream().forEach(
 //		(Consumer2<String,DBInterface>)(name, db) -> {
 for(Tuple2<String,DBInterface> t : Databases.getDBInterfaces()) {
-	String name = t.a1();
-	DBInterface db = t.a2();
+	String name = t._1();
+	DBInterface db = t._2();
 
 %>
 <div>

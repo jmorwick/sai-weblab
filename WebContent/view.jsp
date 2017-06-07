@@ -26,7 +26,7 @@
 <select name="db">
     <%
     for(Tuple2<String, DBInterface> t : Databases.getDBInterfaces()) {
-    %><option><%= t.a1() %></option><%
+    %><option><%= t._1() %></option><%
     }
     %>
 </select>
