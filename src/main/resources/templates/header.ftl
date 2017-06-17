@@ -10,10 +10,10 @@
 <h1>SAI Web Admin</h1>
 <div ID="navbar">
     <ul>
-        <li><a href="index.jsp">databases</a></li>
-        <li><a href="tasks.jsp">tasks</a></li>
-        <li><a href="reports.jsp">reports</a></li>
-        <li><a href="plugins.jsp">plugins</a></li>
+        <li><a href="dbs">databases</a></li>
+        <li><a href="tasks">tasks</a></li>
+        <li><a href="reports">reports</a></li>
+        <li><a href="plugins">plugins</a></li>
     </ul>
 </div>
 <div class="content">
