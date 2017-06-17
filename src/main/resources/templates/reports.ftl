@@ -1,3 +1,6 @@
+<#include "header.ftl">
+<h1>View Reports</h1>
+
 <!--   TODO:   migrate old jsp code below to controller / template
 
 
@@ -25,3 +28,5 @@
 <jsp:include page="footer.jspf" />
 
 -->
+
+<#include "footer.ftl">

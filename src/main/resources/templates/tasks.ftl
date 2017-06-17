@@ -1,3 +1,6 @@
+<#include "header.ftl">
+<h1>Manage Tasks</h1>
+
 <!--   TODO:   migrate old jsp code below to controller / template
 
 
@@ -51,3 +54,5 @@ if(t.running()) continue;
 <jsp:include page="footer.jspf" />
 
 -->
+
+<#include "footer.ftl">

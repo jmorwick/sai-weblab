@@ -1,3 +1,6 @@
+<#include "header.ftl">
+<h1>Manage Plugins</h1>
+
 <!--   TODO:   migrate old jsp code below to controller / template
 
 
@@ -128,3 +131,5 @@ Set<String> liveCategories = Sets.newHashSet();
 
 
 -->
+
+<#include "footer.ftl">
