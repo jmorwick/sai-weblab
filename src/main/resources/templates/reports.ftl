@@ -1,3 +1,5 @@
+<!--   TODO:   migrate old jsp code below to controller / template
+
 
 <%@page import="net.sourcedestination.funcles.tuple.Tuple2"%>
 <%@page import="net.sourcedestination.sai.weblab.Tasks"%>
@@ -10,14 +12,16 @@
 <jsp:include page="header.jspf" />
 <h1>View Report:</h1>
 <select>
-<% // TODO: include all task details
-for(Map.Entry<Task,Log> e : Tasks.FINISHED_TASKS.entrySet()) {
-	Task task = e.getKey();
-	Log log = e.getValue();
-%>
-  <option><%= log.getTaskName() + " - " + log.getStartTime() %></option>
+    <% // TODO: include all task details
+    for(Map.Entry<Task,Log> e : Tasks.FINISHED_TASKS.entrySet()) {
+    Task task = e.getKey();
+    Log log = e.getValue();
+    %>
+    <option><%= log.getTaskName() + " - " + log.getStartTime() %></option>
 </select>
 <%
 }
 %>
 <jsp:include page="footer.jspf" />
+
+-->
