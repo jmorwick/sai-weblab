@@ -3,9 +3,12 @@
 
 <h2>Statistics</h2>
 <div class="dbstats">
-    <#list stats as name, value>
+    <#list stats as statname, statvalue>
         <div class="row">
-            <label>${name}</label> <div class="value">${value}</div>
+            <label>${statname}</label> <div class="value">${statvalue}</div>
+            <form action="/dbs/recompute/${dbname}/${statname}" method="POST">
+                <input type="submit" name="submit" value="recompute"/>
+            </form>
         </div>
     </#list>
 </div>

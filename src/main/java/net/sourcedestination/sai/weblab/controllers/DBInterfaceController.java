@@ -1,23 +1,33 @@
 package net.sourcedestination.sai.weblab.controllers;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.sai.db.DBInterface;
+import net.sourcedestination.sai.reporting.stats.DBStatistic;
+import net.sourcedestination.sai.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
+
+import static net.sourcedestination.funcles.tuple.Tuple2.makeTuple;
 
 @Controller
 public class DBInterfaceController {
 
     private final ApplicationContext appContext;
+    private final Map<Tuple2<DBInterface,DBStatistic>,Task> statTasks;
+    private final Map<Tuple2<DBInterface,DBStatistic>,Double> statValues;
 
     @Autowired
     public DBInterfaceController(ApplicationContext appContext) {
+        this.statTasks = new ConcurrentHashMap<>();
+        this.statValues = new ConcurrentHashMap<>();
         this.appContext = appContext;
     }
 
@@ -36,10 +46,47 @@ public class DBInterfaceController {
     public String viewDB(Map<String, Object> model,
                          @PathVariable("dbname") String dbname) {
         DBInterface db = (DBInterface)appContext.getBean(dbname);
-        Map<String,String> stats = new HashMap<>(); // TODO: retrieve from appContext (need new class in SAI)
         model.put("dbname", dbname);
+
+        // check stats
+        Map<String,String> stats = new HashMap<>();
+        Map<String,String> statProgress = new HashMap<>();
+        Map<String,DBStatistic> statGens = appContext.getBeansOfType(DBStatistic.class);
+        for(String statName : statGens.keySet()) {
+            DBStatistic stat = statGens.get(statName);
+            if(statValues.containsKey(makeTuple(db,stat))) {
+                stats.put(statName, statValues.get(makeTuple(db,stat)).toString());
+            } else {
+                stats.put(statName, "");
+            }
+
+            if(statTasks.containsKey(makeTuple(db,stat))) {
+                stats.put(statName, ""+statTasks.get(makeTuple(db,stat)).getPercentageDone());
+            }
+        }
         model.put("stats", stats);
+        model.put("statProgress", statProgress);
+
         return "viewdb";
+    }
+
+    @PostMapping(value="/dbs/recompute/{dbname}/{statname}")
+    public RedirectView recomputeStat(Map<String, Object> model,
+                                      @PathVariable("dbname") String dbname,
+                                      @PathVariable("statname") String statname) {
+        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        final DBStatistic stat = (DBStatistic) appContext.getBean(statname);
+        final Tuple2<DBInterface, DBStatistic> key = makeTuple(db,stat);
+        if(!statTasks.containsKey(key)) {
+            Task<Double> t = stat.apply(db);
+            CompletableFuture.supplyAsync(t)
+                    .thenAccept(value -> {
+                        statValues.put(key, value);
+                        statTasks.remove(key);
+                    });
+        }
+
+        return new RedirectView("/dbs/view/"+dbname);
     }
 
     @GetMapping({"/dbs/retrieve/{dbname}"})

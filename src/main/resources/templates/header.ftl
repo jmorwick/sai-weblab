@@ -2,8 +2,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="saiadmin.css" rel="stylesheet" type="text/css" />
-    <script src="saiwebadmin.js"></script>
+    <link href="/saiadmin.css" rel="stylesheet" type="text/css" />
+    <script src="/saiwebadmin.js"></script>
     <title>SAI WebLab</title>
 </head>
 <body>
