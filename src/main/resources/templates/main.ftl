@@ -1,18 +1,9 @@
 <#include "header.ftl">
-<h1>Query a database</h1>
-<select name="db">
+<h1>Select a Database Interface:</h1>
+<ul>
   <#list dbs as dbname, dbtype>
-    <option value="${dbname}">${dbname} - ${dbtype}</option>
+    <li><a href="/dbs/view/${dbname}">${dbname}</a> - ${dbtype}</li>
   </#list>
-    <!-- TODO: include all DB's as option tags -->
-</select>
-
-
-<!-- TODO: loop below for each database:
-<div>
-    <h2><%= name %></h2>
-    <b>size: </b> <%= db.getDatabaseSize() %>
-</div>
--->
+</ul>
 
 <#include "footer.ftl">

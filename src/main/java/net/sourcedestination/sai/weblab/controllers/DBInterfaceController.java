@@ -1,7 +1,6 @@
 package net.sourcedestination.sai.weblab.controllers;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.sourcedestination.sai.db.DBInterface;
@@ -10,14 +9,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class DBInterfaceController {
 
-    @Autowired
-    private ApplicationContext appContext;
+    private final ApplicationContext appContext;
 
-    private Map<String,DBInterface> runtimeDbs = new HashMap<>();
+    @Autowired
+    public DBInterfaceController(ApplicationContext appContext) {
+        this.appContext = appContext;
+    }
 
     @GetMapping({"/","/dbs"})
     public String view(Map<String, Object> model) {
@@ -25,10 +27,6 @@ public class DBInterfaceController {
         Map<String,String> dbsinfo = dbs.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> e.getValue().getClass().getSimpleName()));
-        runtimeDbs.entrySet().stream()
-                .forEach(e -> dbsinfo.put(
-                        e.getKey(),
-                        e.getValue().getClass().getSimpleName()));
 
         model.put("dbs", dbsinfo);
         return "main";
@@ -37,8 +35,18 @@ public class DBInterfaceController {
     @GetMapping({"/dbs/view/{dbname}"})
     public String viewDB(Map<String, Object> model,
                          @PathVariable("dbname") String dbname) {
-        DBInterface db = runtimeDbs.get(dbname);
-        if(db == null) db = (DBInterface)appContext.getBean(dbname);
+        DBInterface db = (DBInterface)appContext.getBean(dbname);
+        Map<String,String> stats = new HashMap<>(); // TODO: retrieve from appContext (need new class in SAI)
+        model.put("dbname", dbname);
+        model.put("stats", stats);
+        return "viewdb";
+    }
+
+    @GetMapping({"/dbs/retrieve/{dbname}"})
+    public String viewGraph(Map<String, Object> model,
+                         @PathVariable("dbname") String dbname,
+                         @RequestParam("id") int id) {
+        DBInterface db = (DBInterface)appContext.getBean(dbname);
         model.put("dbname", dbname);
         return "viewdb";
     }
