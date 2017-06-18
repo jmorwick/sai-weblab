@@ -22,12 +22,14 @@
 
 <h2>Add a Graph</h2>
 <form action="/dbs/create/${dbname}" method="post">
-    <label>Encoding</label>
-    <select name="encoding">
-        <option>default</option>
+    <label>Encoder</label>
+    <select name="decodername">
+    <#list decoders as decodername>
+        <option>${decodername}</option>
+    </#list>
     </select>
     <label>Graph Data</label>
-    <textarea name="data"></textarea>
+    <textarea name="encoding"></textarea>
     <input type="submit" name="submit" value="add graph"/>
 </form>
 

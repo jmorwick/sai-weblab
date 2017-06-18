@@ -11,4 +11,8 @@
     <!-- statistics -->
     <bean id="size" class="net.sourcedestination.sai.reporting.stats.DBSize"/>
 
+    <!-- graph serialization -->
+    <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
+    <bean id="sai-json-deserializer" class="net.sourcedestination.sai.graph.SaiGraphJsonDeserializer" />
+
 </beans>

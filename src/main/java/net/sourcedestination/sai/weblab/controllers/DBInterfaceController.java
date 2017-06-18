@@ -1,12 +1,17 @@
 package net.sourcedestination.sai.weblab.controllers;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.sai.db.DBInterface;
+import net.sourcedestination.sai.graph.Graph;
+import net.sourcedestination.sai.graph.GraphDeserializer;
+import net.sourcedestination.sai.graph.GraphSerializer;
+import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
 import net.sourcedestination.sai.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +72,15 @@ public class DBInterfaceController {
         model.put("stats", stats);
         model.put("statProgress", statProgress);
 
+        // find encoders
+        Map<String,GraphDeserializer> encoders = appContext.getBeansOfType(GraphDeserializer.class);
+        model.put("decoders", encoders.keySet());
+
         return "viewdb";
     }
 
     @PostMapping(value="/dbs/recompute/{dbname}/{statname}")
-    public RedirectView recomputeStat(Map<String, Object> model,
-                                      @PathVariable("dbname") String dbname,
+    public RedirectView recomputeStat(@PathVariable("dbname") String dbname,
                                       @PathVariable("statname") String statname) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
         final DBStatistic stat = (DBStatistic) appContext.getBean(statname);
@@ -89,11 +97,33 @@ public class DBInterfaceController {
         return new RedirectView("/dbs/view/"+dbname);
     }
 
+    @PostMapping(value="/dbs/create/{dbname}")
+    public RedirectView createGraph(@PathVariable("dbname") String dbname,
+                                    @RequestParam("decodername") String decodername,
+                                    @RequestParam("encoding") String encoding) {
+        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        final GraphDeserializer<? extends Graph> decoder =
+                (GraphDeserializer) appContext.getBean(decodername);
+        final Graph g = decoder.apply(encoding);
+        final int id = db.addGraph(g);
+
+        return new RedirectView("/dbs/view/"+dbname);
+    }
+
     @GetMapping({"/dbs/retrieve/{dbname}"})
     public String viewGraph(Map<String, Object> model,
-                         @PathVariable("dbname") String dbname,
-                         @RequestParam("id") int id) {
+                            @PathVariable("dbname") String dbname,
+                            @RequestParam("id") int id) {
         DBInterface db = (DBInterface)appContext.getBean(dbname);
+        Graph g = db.retrieveGraph(id, MutableGraph::new);
+        Map<String,GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
+        Set<String> decoderNames = decoders.keySet();
+        String decoder = "sai-json-deserializer"; // TODO: keep track in session of selection
+
+        model.put("id", id);
+        model.put("decoders", decoderNames);
+        model.put("decoder", decoder);
+        model.put("encoding", decoders.get(decoder).apply(g));
         model.put("dbname", dbname);
         return "viewdb";
     }
