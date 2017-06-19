@@ -116,16 +116,16 @@ public class DBInterfaceController {
                             @RequestParam("id") int id) {
         DBInterface db = (DBInterface)appContext.getBean(dbname);
         Graph g = db.retrieveGraph(id, MutableGraph::new);
-        Map<String,GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
-        Set<String> decoderNames = decoders.keySet();
-        String decoder = "sai-json-deserializer"; // TODO: keep track in session of selection
+        Map<String,GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
+        Set<String> encoderNames = encoders.keySet();
+        String encoder = "sai-json-serializer"; // TODO: keep track in session of selection
 
         model.put("id", id);
-        model.put("decoders", decoderNames);
-        model.put("decoder", decoder);
-        model.put("encoding", decoders.get(decoder).apply(g));
+        model.put("encoders", encoderNames);
+        model.put("encoder", encoder);
+        model.put("encoding", encoders.get(encoder).apply(g));
         model.put("dbname", dbname);
-        return "viewdb";
+        return "viewgraph";
     }
 
 }
