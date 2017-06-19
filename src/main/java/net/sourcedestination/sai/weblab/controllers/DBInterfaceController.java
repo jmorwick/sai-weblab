@@ -128,4 +128,11 @@ public class DBInterfaceController {
         return "viewgraph";
     }
 
+    @PostMapping(value="/dbs/clear/{dbname}")
+    public RedirectView clearDB(@PathVariable("dbname") String dbname) {
+        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        db.getGraphIDStream().forEach(db::deleteGraph);
+        return new RedirectView("/dbs/view/"+dbname);
+    }
+
 }
