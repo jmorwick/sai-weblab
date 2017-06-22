@@ -10,6 +10,13 @@
 
     <!-- statistics -->
     <bean id="size" class="net.sourcedestination.sai.reporting.stats.DBSize"/>
+    <bean id="attributes-per-graph" class="net.sourcedestination.sai.reporting.stats.UniqueAttributesPerGraph">
+        <constructor-arg>
+            <set>
+                <value>test</value>
+            </set>
+        </constructor-arg>
+    </bean>
 
     <!-- graph serialization -->
     <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
