@@ -17,6 +17,13 @@
             </set>
         </constructor-arg>
     </bean>
+    <bean id="edges-per-graph" class="net.sourcedestination.sai.reporting.stats.UniqueEdgesPerGraph">
+        <constructor-arg>
+            <set>
+                <value>test</value>
+            </set>
+        </constructor-arg>
+    </bean>
 
     <!-- graph serialization -->
     <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
