@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- DB interfaces -->
+    <bean id="db1" class="net.sourcedestination.sai.db.BasicDBInterface"/>
+
+    <!-- statistics -->
+    <bean id="size" class="net.sourcedestination.sai.reporting.stats.DBSize"/>
+    <bean id="attributes-per-graph" class="net.sourcedestination.sai.reporting.stats.UniqueAttributesPerGraph">
+        <constructor-arg>
+            <set>
+                <value>test</value>
+            </set>
+        </constructor-arg>
+    </bean>
+    <bean id="edges-per-graph" class="net.sourcedestination.sai.reporting.stats.UniqueEdgesPerGraph">
+        <constructor-arg>
+            <set>
+                <value>test</value>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- graph serialization -->
+    <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
+    <bean id="sai-json-deserializer" class="net.sourcedestination.sai.graph.SaiGraphJsonDeserializer" />
+
+</beans>
