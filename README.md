@@ -12,7 +12,7 @@ Weblab code shouldn't require modification to run your own custom experiments, b
 
 Weblab uses a Spring configuration to manage plugins and experiment structure. SAI plugins are declared in a Spring 
 XML file named weblab-components.xml which is loaded from the classpath. Edit the file to incorporate the plugins 
-and experiment tasks you wish to work with. Then run the jar with the xml file in the classpath. 
+and experiment tasks you wish to work with. 
 
 Ex. Using the default configuration with 3rd party jars and weblab-components.xml in the working directory:
 
