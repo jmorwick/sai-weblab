@@ -43,6 +43,9 @@
 <form action="/dbs/populate/${dbname}" method="post">
     <label>Data Source</label>
     <select name="dbloader">
+    <#list populators as populatorname>
+        <option>${populatorname}</option>
+    </#list>
     </select>
     <input type="submit" name="submit" value="populate database"/>
 </form>

@@ -13,6 +13,7 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
+import net.sourcedestination.sai.task.DatabasePopulator;
 import net.sourcedestination.sai.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -75,6 +76,10 @@ public class DBInterfaceController {
         // find encoders
         Map<String,GraphDeserializer> encoders = appContext.getBeansOfType(GraphDeserializer.class);
         model.put("decoders", encoders.keySet());
+
+        // find populators
+        Map<String,DatabasePopulator> populators = appContext.getBeansOfType(DatabasePopulator.class);
+        model.put("populators", populators.keySet());
 
         return "viewdb";
     }
