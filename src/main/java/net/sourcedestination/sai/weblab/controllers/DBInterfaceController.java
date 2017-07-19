@@ -15,6 +15,7 @@ import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
 import net.sourcedestination.sai.task.DatabasePopulator;
 import net.sourcedestination.sai.task.Task;
+import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -29,11 +30,14 @@ public class DBInterfaceController {
     private final ApplicationContext appContext;
     private final Map<Tuple2<DBInterface,DBStatistic>,Task> statTasks;
     private final Map<Tuple2<DBInterface,DBStatistic>,Double> statValues;
+    private TaskManager taskManager;
 
     @Autowired
-    public DBInterfaceController(ApplicationContext appContext) {
+    public DBInterfaceController(ApplicationContext appContext,
+                                 TaskManager taskManager) {
         this.statTasks = new ConcurrentHashMap<>();
         this.statValues = new ConcurrentHashMap<>();
+        this.taskManager = taskManager;
         this.appContext = appContext;
     }
 
@@ -138,6 +142,16 @@ public class DBInterfaceController {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
         db.getGraphIDStream().forEach(db::deleteGraph);
         return new RedirectView("/dbs/view/"+dbname);
+    }
+
+
+    @PostMapping(value="/dbs/populate/{dbname}")
+    public RedirectView populateDB(@PathVariable("dbname") String dbname,
+                                    @RequestParam("populatorname") String populatorname) {
+        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        final DatabasePopulator pop = (DatabasePopulator)appContext.getBean(populatorname);
+        int taskId = taskManager.addTask(pop.apply(db));
+        return new RedirectView("/tasks/view/"+taskId);
     }
 
 }

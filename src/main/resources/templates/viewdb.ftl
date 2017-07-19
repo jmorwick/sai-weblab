@@ -42,7 +42,7 @@
 <h2>Populate the Database</h2>
 <form action="/dbs/populate/${dbname}" method="post">
     <label>Data Source</label>
-    <select name="dbloader">
+    <select name="populatorname">
     <#list populators as populatorname>
         <option>${populatorname}</option>
     </#list>
