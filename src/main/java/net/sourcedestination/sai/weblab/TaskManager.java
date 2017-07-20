@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Created by jmorwick on 7/19/17.
  */
-@Repository("taskManager")
+@Repository
 public class TaskManager {
 
     private int nextTaskId = 1;
