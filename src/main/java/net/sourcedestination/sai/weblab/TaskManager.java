@@ -23,6 +23,7 @@ public class TaskManager {
     public synchronized int addTask(Task t) {
         trackedTasks.put(nextTaskId, t);
         CompletableFuture<Log> f = CompletableFuture.supplyAsync(t);
+        taskFutures.put(nextTaskId, f);
         return nextTaskId++;
     }
 

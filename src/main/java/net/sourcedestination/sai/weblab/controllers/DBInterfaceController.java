@@ -13,7 +13,7 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
-import net.sourcedestination.sai.task.DatabasePopulator;
+import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +82,10 @@ public class DBInterfaceController {
         model.put("decoders", encoders.keySet());
 
         // find populators
-        Map<String,DatabasePopulator> populators = appContext.getBeansOfType(DatabasePopulator.class);
+        Map<String,DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
         model.put("populators", populators.keySet());
+
+
 
         return "viewdb";
     }
@@ -149,9 +151,9 @@ public class DBInterfaceController {
     public RedirectView populateDB(@PathVariable("dbname") String dbname,
                                     @RequestParam("populatorname") String populatorname) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
-        final DatabasePopulator pop = (DatabasePopulator)appContext.getBean(populatorname);
+        final DBPopulator pop = (DBPopulator)appContext.getBean(populatorname);
         int taskId = taskManager.addTask(pop.apply(db));
-        return new RedirectView("/tasks/view/"+taskId);
+        return new RedirectView("/tasks");
     }
 
 }

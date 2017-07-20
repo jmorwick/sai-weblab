@@ -27,32 +27,23 @@
     <input type="submit" name="action" value="initiate">
 </form>
 
-
-<h1>Currently Running Tasks:</h1>
-
-<% // TODO: include all task details
-for(Task t : Tasks.TASKS) {
-if(!t.running()) continue;
-%>  <option><%=t.getTaskName()+"("+t.getProgressUnits()+")("+t.getPercentageDone()+"%)"
-    + (Tasks.CRASHED_TASKS.containsKey(t) ? Tasks.CRASHED_TASKS.get(t).getMessage() : "")
-    %></option>
-<%
-}
-%>
-
-<h1>Inactive Tasks:</h1>
-
-<% // TODO: include all task details
-for(Task t : Tasks.TASKS) {
-if(t.running()) continue;
-%>  <option><%=t.getTaskName()+"("+t.getProgressUnits()+")("+t.getPercentageDone()+"%)"
-    + (Tasks.CRASHED_TASKS.containsKey(t) ? Tasks.CRASHED_TASKS.get(t).getMessage() : "")
-    %></option>
-<%
-}
-%>
-<jsp:include page="footer.jspf" />
-
 -->
+
+
+<h2>Currently Running Tasks:</h2>
+<#list activetasks as taskid, taskname>
+<div class="row">
+    <h3>#${taskid} - ${taskname}</h3>
+    <label>percentage complete: </label> <span class="labeled-value">${percentagecomplete[taskid]}</span>
+</div>
+</#list>
+
+<h2>Inactive Tasks:</h2>
+<#list inactivetasks as taskid, taskname>
+<div class="row">
+    <h3>#${taskid} - ${taskname}</h3>
+</div>
+</#list>
+
 
 <#include "footer.ftl">
