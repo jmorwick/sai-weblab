@@ -71,7 +71,8 @@ public class DBInterfaceController {
             }
 
             if(statTasks.containsKey(makeTuple(db,stat))) {
-                stats.put(statName, ""+statTasks.get(makeTuple(db,stat)).getPercentageDone());
+                statProgress.put(statName, ""+(
+                        100.0*statTasks.get(makeTuple(db,stat)).getPercentageDone()));
             }
         }
         model.put("stats", stats);
@@ -98,6 +99,7 @@ public class DBInterfaceController {
         final Tuple2<DBInterface, DBStatistic> key = makeTuple(db,stat);
         if(!statTasks.containsKey(key)) {
             Task<Double> t = stat.apply(db);
+            statTasks.put(key, t);
             CompletableFuture.supplyAsync(t)
                     .thenAccept(value -> {
                         statValues.put(key, value);

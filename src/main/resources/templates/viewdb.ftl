@@ -6,6 +6,9 @@
     <#list stats as statname, statvalue>
         <div class="row">
             <label>${statname}</label> <div class="value">${statvalue}</div>
+            <#if statProgress[statname]?? >
+               <div class="annotation">(%${statProgress[statname]})</div>
+            </#if>
             <form action="/dbs/recompute/${dbname}/${statname}" method="POST">
                 <input type="submit" name="submit" value="recompute"/>
             </form>
