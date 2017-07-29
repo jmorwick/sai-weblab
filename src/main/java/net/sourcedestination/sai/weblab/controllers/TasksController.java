@@ -29,11 +29,11 @@ public class TasksController {
         for(int tid : taskManager.getTrackedTaskIds()) {
             Task t = taskManager.getTask(tid);
             Log l = taskManager.getResult(tid);
-            if(l != null) inactiveTasks.put(""+tid, t.getTaskName());
+            if(l != null) inactiveTasks.put(""+tid, ""+t.getTaskName());
             else {
                 percentageComplete.put(""+tid, t.getPercentageDone());
                 progress.put(""+tid, t.getProgressUnits());
-                activeTasks.put(""+tid,t.getTaskName());
+                activeTasks.put(""+tid, ""+t.getTaskName());
             }
         }
         model.put("activetasks", activeTasks);

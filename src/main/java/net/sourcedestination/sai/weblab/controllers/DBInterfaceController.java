@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.sai.db.DBInterface;
@@ -13,6 +14,7 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
+import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
@@ -140,6 +142,22 @@ public class DBInterfaceController {
         model.put("dbname", dbname);
         return "viewgraph";
     }
+
+    @PostMapping(value="/dbs/retrieval/{dbname}")
+    public RedirectView simpleRetrieval(@PathVariable("dbname") String dbname,
+                                        @RequestParam("max") String maxResultsStr) {
+        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        int maxResults = Integer.parseInt(maxResultsStr);
+        GraphRetriever r = new GraphRetriever() {
+            @Override
+            public Stream<Integer> retrieve(DBInterface dbInterface, Graph graph) {
+                return db.getGraphIDStream().limit(maxResults);
+            }
+        };
+        taskManager.addGraphRetrievalTask(db, r, null, maxResults);
+        return new RedirectView("/tasks");
+    }
+
 
     @PostMapping(value="/dbs/clear/{dbname}")
     public RedirectView clearDB(@PathVariable("dbname") String dbname) {

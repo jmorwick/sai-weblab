@@ -53,8 +53,16 @@
     <input type="submit" name="submit" value="populate database"/>
 </form>
 
-<h2>Structural Retreival</h2>
+<h2>Simple Retreival</h2>
 <form action="/dbs/retrieval/${dbname}" method="post">
+    <label>max results</label>
+    <input type="input" name="max"/>
+
+    <input type="submit" name="submit" value="retrieve graphs"/>
+</form>
+
+<h2>Structural Retreival</h2>
+<form action="/dbs/structural-retrieval/${dbname}" method="post">
     <label>Retriever</label>
     <select name="retriever">
     </select>
@@ -64,10 +72,28 @@
     </select>
     <label>Graph Data</label>
     <textarea name="data"></textarea>
+    <label>max results</label>
+    <input type="input" name="max"/>
+
+    <label>Results Evaluators</label>
+    <select multiple name="evaluators">
+    </select>
+
     <input type="submit" name="submit" value="retrieve similar graphs"/>
 </form>
 
-<h2>Retreival Test</h2>
+<h2>Retreival Experiment</h2>
+<form action="/dbs/test/${dbname}" method="post">
+    <label>Retriever</label>
+    <select name="retriever">
+    </select>
+    <label>DB Containing Queries</label>
+    <input type="text" name="folds"/>
+    <input type="submit" name="submit" value="launch test"/>
+</form>
+
+
+<h2>Cross Validation Retrieval Experiment</h2>
 <form action="/dbs/test/${dbname}" method="post">
     <label>Retriever</label>
     <select name="retriever">
