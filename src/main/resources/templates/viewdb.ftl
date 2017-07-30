@@ -55,6 +55,8 @@
 
 <h2>Simple Retreival</h2>
 <form action="/dbs/retrieval/${dbname}" method="post">
+    <label>skip initial n results</label>
+    <input type="input" name="skip"/>
     <label>max results</label>
     <input type="input" name="max"/>
 

@@ -145,13 +145,13 @@ public class DBInterfaceController {
 
     @PostMapping(value="/dbs/retrieval/{dbname}")
     public RedirectView simpleRetrieval(@PathVariable("dbname") String dbname,
-                                        @RequestParam("max") String maxResultsStr) {
+                                        @RequestParam("skip") int skipResults,
+                                        @RequestParam("max") int maxResults) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
-        int maxResults = Integer.parseInt(maxResultsStr);
         GraphRetriever r = new GraphRetriever() {
             @Override
             public Stream<Integer> retrieve(DBInterface dbInterface, Graph graph) {
-                return db.getGraphIDStream().limit(maxResults);
+                return db.getGraphIDStream().skip(skipResults).limit(maxResults);
             }
         };
         taskManager.addGraphRetrievalTask(db, r, null, maxResults);

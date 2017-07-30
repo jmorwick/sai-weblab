@@ -1,6 +1,10 @@
 package net.sourcedestination.sai.weblab.controllers;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.reporting.Log;
+import net.sourcedestination.sai.reporting.QueryRecord;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class ReportsController {
@@ -37,11 +43,33 @@ public class ReportsController {
     }
 
     @GetMapping("/reports/view/{taskid}")
-    public String view(Map<String, Object> model,
+    public String viewTask(Map<String, Object> model,
                        @PathVariable("taskid") int taskid) {
         Log log = taskManager.getResult(taskid);
         model.put("taskid", ""+taskid);
         model.put("taskname", log.getTaskName());
+        model.put("queryids", IntStream.range(1,log.getNumQueryRecords()).toArray());
         return "viewlog";
     }
+
+    @GetMapping("/reports/view-query/{taskid}/{queryid}")
+    public String viewQuery(Map<String, Object> model,
+                            @PathVariable("taskid") int taskid,
+                            @PathVariable("queryid") int queryid) {
+
+        BiMap<String,DBInterface> dbs =
+                HashBiMap.create(appContext.getBeansOfType(DBInterface.class));
+
+        Log log = taskManager.getResult(taskid);
+        QueryRecord r = log.getQueryRecord(queryid-1);
+        model.put("query", ""+r.getQuery());
+        model.put("graphids", r.getRetrievedGraphIDs().collect(Collectors.toList()));
+        model.put("taskid", ""+taskid);
+        model.put("queryid", ""+queryid);
+        model.put("dbname", dbs.inverse().get(r.getDB()));
+        model.put("taskname", log.getTaskName());
+        return "viewquery";
+    }
+
+
 }
