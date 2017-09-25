@@ -55,25 +55,23 @@
 
 <h2>Simple Retreival</h2>
 <form action="/dbs/retrieval/${dbname}" method="post">
-    <label>skip initial n results</label>
-    <input type="input" name="skip"/>
-    <label>max results</label>
-    <input type="input" name="max"/>
 
     <input type="submit" name="submit" value="retrieve graphs"/>
 </form>
 
 <h2>Structural Retreival</h2>
-<form action="/dbs/structural-retrieval/${dbname}" method="post">
+<form action="/dbs/retrieval/${dbname}" method="post">
     <label>Retriever</label>
     <select name="retriever">
     </select>
     <label>Encoding</label>
     <select name="encoding">
-        <option>default</option>
+        <option>none</option>
     </select>
     <label>Graph Data</label>
     <textarea name="data"></textarea>
+    <label>skip initial n results</label>
+    <input type="input" name="skip"/>
     <label>max results</label>
     <input type="input" name="max"/>
 
