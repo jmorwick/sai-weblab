@@ -145,16 +145,28 @@ public class DBInterfaceController {
 
     @PostMapping(value="/dbs/retrieval/{dbname}")
     public RedirectView simpleRetrieval(@PathVariable("dbname") String dbname,
+                                        @RequestParam("retriever") String retrieverName,
+                                        @RequestParam("query") String queryString,
+                                        @RequestParam("format") String format,
                                         @RequestParam("skip") int skipResults,
                                         @RequestParam("max") int maxResults) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
-        GraphRetriever r = new GraphRetriever() {
+        final GraphRetriever retriever = (GraphRetriever)appContext.getBean(dbname);
+        Graph query = null;
+        if(format != null && format.length() > 0 && !format.equals("none") &&
+                queryString != null && queryString.length() > 0) {
+            // a format and query were specified
+            final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer)appContext.getBean(format);
+            // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
+            query = deserializer.apply(queryString);
+        }
+        GraphRetriever wrappedRetriever = new GraphRetriever() {
             @Override
-            public Stream<Integer> retrieve(DBInterface dbInterface, Graph graph) {
-                return db.getGraphIDStream().skip(skipResults).limit(maxResults);
+            public Stream<Integer> retrieve(DBInterface db, Graph graph) {
+                return retriever.retrieve(db, graph).skip(skipResults).limit(maxResults);
             }
         };
-        taskManager.addGraphRetrievalTask(db, r, null, maxResults);
+        taskManager.addGraphRetrievalTask(db, wrappedRetriever, query, maxResults);
         return new RedirectView("/tasks");
     }
 
