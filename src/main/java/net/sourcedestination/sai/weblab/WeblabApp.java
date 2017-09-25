@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
-@ImportResource("classpath:weblab-components.xml")
+@ImportResource("file:./weblab-components.xml")
 public class WeblabApp {
 
     public static void main(String[] args) throws Exception {
