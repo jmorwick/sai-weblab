@@ -44,6 +44,10 @@ public class TaskManager {
         return nextTaskId++;
     }
 
+    public synchronized Date getStartTime(int id) { return startTimes.get(id); }
+
+    public synchronized Date getEndTime(int id) { return endTimes.get(id); }
+
     public synchronized Task getTask(int id) {
         return trackedTasks.get(id);
     }

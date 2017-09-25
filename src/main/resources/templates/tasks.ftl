@@ -33,7 +33,7 @@
 <h2>Currently Running Tasks:</h2>
 <#list activetasks as taskid, taskname>
 <div class="row">
-    <h3>#${taskid} - ${taskname}</h3>
+    <h3>#${taskid} - ${taskname} (${startTimes[taskid]})</h3>
     <label>percentage complete: </label> <span class="labeled-value">${percentagecomplete[taskid]}</span>
 </div>
 </#list>
@@ -41,7 +41,7 @@
 <h2>Inactive Tasks:</h2>
 <#list inactivetasks as taskid, taskname>
 <div class="row">
-    <h3>#${taskid} - ${taskname}</h3>
+    <h3>#${taskid} - ${taskname} (${startTimes[taskid]} - ${endTimes[taskid]})</h3>
 </div>
 </#list>
 
