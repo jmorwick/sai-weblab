@@ -14,6 +14,7 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.graph.MutableGraph;
 import net.sourcedestination.sai.reporting.stats.DBStatistic;
+import net.sourcedestination.sai.reporting.stats.FastDBStatistic;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
@@ -63,12 +64,17 @@ public class DBInterfaceController {
         // check stats
         Map<String,String> stats = new HashMap<>();
         Map<String,String> statProgress = new HashMap<>();
+        Map<String,String> statComputable = new HashMap<>();
         Map<String,DBStatistic> statGens = appContext.getBeansOfType(DBStatistic.class);
         for(String statName : statGens.keySet()) {
             DBStatistic stat = statGens.get(statName);
-            if(statValues.containsKey(makeTuple(db,stat))) {
+            if(stat instanceof FastDBStatistic) {
+                stats.put(statName, ""+stat.apply(db).get());
+            } else if(statValues.containsKey(makeTuple(db,stat))) {
+                statComputable.put(statName, statName);
                 stats.put(statName, statValues.get(makeTuple(db,stat)).toString());
             } else {
+                statComputable.put(statName, statName);
                 stats.put(statName, "");
             }
 
@@ -79,6 +85,7 @@ public class DBInterfaceController {
         }
         model.put("stats", stats);
         model.put("statProgress", statProgress);
+        model.put("statComputable", statComputable);
 
         // find encoders
         Map<String,GraphDeserializer> encoders = appContext.getBeansOfType(GraphDeserializer.class);
