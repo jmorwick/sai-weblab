@@ -1,17 +1,21 @@
 <#include "header.ftl">
-<h1>DBInterface: ${dbname}</h1>
+<div class="container">
+    <h3>DBInterface: ${dbname}</h3>
 
 
-<h2>Encoding</h2>
-<form action="/dbs/test/${dbname}" method="post">
-    <label>Encoder</label>
-    <select name="encodername">
-    <#list encoders as encodername>
-        <option>${encodername}</option>
-    </#list>
-    </select>
-</form>
-
-<pre>${encoding}</pre>
-
+    <legend>Encoding</legend>
+    <form action="/dbs/test/${dbname}" method="post">
+        <label>Encoder</label>
+        <select name="encodername">
+        <#list encoders as encodername>
+            <option>${encodername}</option>
+        </#list>
+        </select>
+    </form>
+    <pre id="jsonGraph" class="prettyprint"></pre>
+    <script text="text/javascript">
+        var graph = "${encoding?js_string}";
+        refactorGraph(graph);
+    </script>
+</div>
 <#include "footer.ftl">
