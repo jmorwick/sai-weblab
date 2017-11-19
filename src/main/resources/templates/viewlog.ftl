@@ -1,10 +1,12 @@
 <#include "header.ftl">
-<h1>Log: ${taskname}</h1>
+<div class="container">
+    <h3>Log: ${taskname}</h3>
 
-<h2>Queries:</h2>
-<ul>
-<#list queryids as queryid>
-<li><a href="/reports/view-query/${taskid}/${queryid}"> #${queryid}</a></li>
-</#list>
-</ul>
+    <legend>Queries:</legend>
+    <ul>
+    <#list queryids as queryid>
+    <li><a href="/reports/view-query/${taskid}/${queryid}"> #${queryid}</a></li>
+    </#list>
+    </ul>
+</div>
 <#include "footer.ftl">

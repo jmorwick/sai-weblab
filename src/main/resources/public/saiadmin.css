@@ -8,7 +8,7 @@ and open the template in the editor.
     Author     : jmorwick
 */
 
-
+/*
 #navbar {
     background-color: yellow
 }
@@ -28,4 +28,8 @@ and open the template in the editor.
 
 .plugininfo select {
     width: 200px;
+} */
+
+* {
+    font-family: 'Open Sans', sans-serif;
 }

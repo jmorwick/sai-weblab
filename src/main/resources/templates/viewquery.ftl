@@ -1,15 +1,17 @@
 <#include "header.ftl">
+<div class="container">
+    <h3>Log: ${taskname}</h3>
 
-<h1>Log: ${taskname}</h1>
+    <h3>Query: #${queryid}</h3>
+    <blockquote>${query}</blockquote>
 
-<h2>Query: #${queryid}</h2>
-<blockquote>${query}</blockquote>
-
-<h2>Retrieved Graphs</h2>
-<ol>
-<#list graphids as graphid>
-    <li>Graph <a href="/dbs/retrieve/${dbname}?id=${graphid}"> #${graphid}</a></li>
-</#list>
-</ol>
-
+    <legend>Retrieved Graphs</legend>
+    <div class="container">
+        <ul class="list-inline">
+            <#list graphids as graphid>
+                <li class="list-inline-item"><a href="/dbs/retrieve/${dbname}?id=${graphid}">Graph #${graphid}</a></li>
+            </#list>
+        </ul>
+    </div>
+</div>
 <#include "footer.ftl">
