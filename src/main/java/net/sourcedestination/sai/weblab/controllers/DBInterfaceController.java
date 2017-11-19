@@ -158,12 +158,12 @@ public class DBInterfaceController {
                                         @RequestParam("skip") int skipResults,
                                         @RequestParam("max") int maxResults) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
-        final GraphRetriever retriever = (GraphRetriever)appContext.getBean(dbname);
+        final GraphRetriever retriever = (GraphRetriever)appContext.getBean(retrieverName);
         Graph query = null;
         if(format != null && format.length() > 0 && !format.equals("none") &&
                 queryString != null && queryString.length() > 0) {
             // a format and query were specified
-            final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer)appContext.getBean(format);
+            final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer<? extends Graph>)appContext.getBean(format);
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
             query = deserializer.apply(queryString);
         }
