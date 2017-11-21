@@ -28,6 +28,7 @@ public class TasksController {
         Map<String,Integer> progress = new HashMap<>();
         Map<String,String> startTimes = new HashMap<>();
         Map<String,String> endTimes = new HashMap<>();
+        Map<String, String> taskTimes = new HashMap<>();
 
         for(int tid : taskManager.getTrackedTaskIds()) {
             Task t = taskManager.getTask(tid);
@@ -36,6 +37,7 @@ public class TasksController {
                 inactiveTasks.put(""+tid, ""+t.getTaskName());
                 startTimes.put(""+tid, taskManager.getStartTime(tid).toString());
                 endTimes.put(""+tid, taskManager.getEndTime(tid).toString());
+                taskTimes.put(""+tid, taskManager.getTaskTime(tid).toString());
             }
             else {
                 percentageComplete.put(""+tid, t.getPercentageDone());
@@ -48,6 +50,7 @@ public class TasksController {
         model.put("inactivetasks", inactiveTasks);
         model.put("startTimes", startTimes);
         model.put("endTimes", endTimes);
+        model.put("taskTimes", taskTimes);
         model.put("percentagecomplete", percentageComplete);
         model.put("progress", progress);
         return "tasks";

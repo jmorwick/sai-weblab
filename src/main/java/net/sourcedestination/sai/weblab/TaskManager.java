@@ -26,16 +26,19 @@ public class TaskManager {
     private Map<Integer,Log> taskLogs = new HashMap<>();
     private Map<Integer,Date> startTimes = new HashMap<>();
     private Map<Integer,Date> endTimes = new HashMap<>();
+    private Map<Integer, Long> taskTimes = new HashMap<>();
 
     public synchronized int addTask(Task<Log> t) {
         final int id = nextTaskId;
         final TaskManager manager = this;
         startTimes.put(id, new Date());
         trackedTasks.put(id, t);
+        long startTime = System.nanoTime();
         CompletableFuture<Log> f = CompletableFuture.supplyAsync(t)
                 .thenApply(log -> { // record the log here when finished
                     synchronized(manager) {
                         endTimes.put(id, new Date());
+                        taskTimes.put(id, (System.nanoTime() - startTime) / 1000000);
                         taskLogs.put(id, log);
                     }
                     return log;
@@ -47,6 +50,8 @@ public class TaskManager {
     public synchronized Date getStartTime(int id) { return startTimes.get(id); }
 
     public synchronized Date getEndTime(int id) { return endTimes.get(id); }
+
+    public synchronized Long getTaskTime(int id) { return taskTimes.get(id); }
 
     public synchronized Task getTask(int id) {
         return trackedTasks.get(id);

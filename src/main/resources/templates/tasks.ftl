@@ -44,7 +44,7 @@
     <ul>
         <#list inactivetasks as taskid, taskname>
         <div class="row">
-            <li>#${taskid} - ${taskname} (${startTimes[taskid]} - ${endTimes[taskid]})</li>
+            <li>#${taskid} - ${taskname} (${startTimes[taskid]} - ${endTimes[taskid]}) | Task Took ${taskTimes[taskid]}ms to finish</li>
         </div>
         </#list>
     </ul>
