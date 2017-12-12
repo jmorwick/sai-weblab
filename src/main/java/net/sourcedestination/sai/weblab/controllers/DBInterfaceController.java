@@ -89,11 +89,21 @@ public class DBInterfaceController {
 
         // find encoders
         Map<String,GraphDeserializer> encoders = appContext.getBeansOfType(GraphDeserializer.class);
-        model.put("decoders", encoders.keySet());
+        model.put("encoders", encoders.keySet());
+
+        // find decoders
+        Map<String,GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
+        Set<String> decoderNames = decoders.keySet();
+        model.put("decoders", decoderNames);
 
         // find populators
         Map<String,DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
         model.put("populators", populators.keySet());
+
+
+        // find retrievers
+        Map<String,GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
+        model.put("retrievers", retrievers.keySet());
 
 
 
@@ -121,12 +131,12 @@ public class DBInterfaceController {
 
     @PostMapping(value="/dbs/create/{dbname}")
     public RedirectView createGraph(@PathVariable("dbname") String dbname,
-                                    @RequestParam("decodername") String decodername,
+                                    @RequestParam("encodername") String encodername,
                                     @RequestParam("encoding") String encoding) {
         final DBInterface db = (DBInterface)appContext.getBean(dbname);
-        final GraphDeserializer<? extends Graph> decoder =
-                (GraphDeserializer) appContext.getBean(decodername);
-        final Graph g = decoder.apply(encoding);
+        final GraphDeserializer<? extends Graph> encoder =
+                (GraphDeserializer) appContext.getBean(encodername);
+        final Graph g = encoder.apply(encoding);
         final int id = db.addGraph(g);
 
         return new RedirectView("/dbs/view/"+dbname);

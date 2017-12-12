@@ -33,9 +33,9 @@
         <legend>Add a Graph</legend>
         <div class="form-group">
             <label>Encoder</label>
-            <select class="form-control" name="decodername">
-            <#list decoders as decodername>
-                <option>${decodername}</option>
+            <select class="form-control" name="encodername">
+            <#list encoders as encodername>
+                <option>${encodername}</option>
             </#list>
             </select>
             <label>Graph Data</label>
@@ -83,13 +83,19 @@
     <form action="/dbs/retrieval/${dbname}" method="post">
         <label>Retriever</label>
         <select class="form-control" name="retriever">
+        <#list retrievers as retrievername>
+            <option>${retrievername}</option>
+        </#list>
         </select>
         <label>Encoding</label>
-        <select class="form-control" name="encoding">
+        <select class="form-control" name="format">
             <option>none</option>
+        <#list decoders as decodername>
+            <option>${decodername}</option>
+        </#list>
         </select>
         <label>Graph Data</label>
-        <textarea class="form-control" name="data"></textarea>
+        <textarea class="form-control" name="query"></textarea>
         <label>skip initial n results</label>
         <input class="form-control" type="input" name="skip"/>
         <label>max results</label>
