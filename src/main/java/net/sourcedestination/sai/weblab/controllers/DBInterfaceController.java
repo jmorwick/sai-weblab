@@ -147,7 +147,7 @@ public class DBInterfaceController {
                             @PathVariable("dbname") String dbname,
                             @RequestParam("id") int id) {
         DBInterface db = (DBInterface)appContext.getBean(dbname);
-        Graph g = db.retrieveGraph(id, MutableGraph::new);
+        Graph g = db.retrieveGraph(id);
         Map<String,GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         Set<String> encoderNames = encoders.keySet();
         String encoder = "sai-json-serializer"; // TODO: keep track in session of selection
