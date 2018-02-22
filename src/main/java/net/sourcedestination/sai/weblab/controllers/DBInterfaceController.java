@@ -203,6 +203,7 @@ public class DBInterfaceController {
         final DBPopulator pop = (DBPopulator) appContext.getBean(populatorname);
         int taskId = taskManager.addTask(pop.apply(db));
         return new RedirectView("/tasks");
+
     }
 
 }
