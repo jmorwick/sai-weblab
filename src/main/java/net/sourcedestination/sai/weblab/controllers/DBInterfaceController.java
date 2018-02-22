@@ -83,6 +83,7 @@ public class DBInterfaceController {
                         100.0 * statTasks.get(makeTuple(db, stat)).getPercentageDone()));
             }
         }
+
         model.put("stats", stats);
         model.put("statProgress", statProgress);
         model.put("statComputable", statComputable);
