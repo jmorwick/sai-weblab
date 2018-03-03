@@ -41,8 +41,7 @@
     <bean id="Database Size:" class="net.sourcedestination.sai.reporting.stats.DBSize"/>
     <bean id="Percentage Of End Points Per Graph:" class="net.sourcedestination.sai.reporting.stats.PercentageOfEndPoints"/>
     <bean id="Percentage Of Isolated Points Per Graph:" class="net.sourcedestination.sai.reporting.stats.PercentageOfIsolatedPoints"/>
-    <bean id="Total Nodes:" class="net.sourcedestination.sai.reporting.stats.TotalNodes"/>
-    <bean id="Total Edges:" class="net.sourcedestination.sai.reporting.stats.TotalEdges"/>
+    <bean id="Total Nodes Per Graph:" class="net.sourcedestination.sai.reporting.stats.TotalNodesPerGraph"/>
     <bean id="Unique Attributes Per Graph:" class="net.sourcedestination.sai.reporting.stats.UniqueAttributesPerGraph"/>
     <bean id="Unique Edges Per Graph:" class="net.sourcedestination.sai.reporting.stats.UniqueEdgesPerGraph"/>
 
