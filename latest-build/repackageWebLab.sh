@@ -14,4 +14,4 @@ mvn package
 mvn package spring-boot:repackage
 
 cd target
-cp -f myproject-0.0.1-SNAPSHOT.jar ~/Documents/GitHub/sai-weblab/latest-build/myproject-0.0.1-SNAPSHOT.jar
+cp -f sai-weblab-0.0.1-SNAPSHOT.jar ~/Documents/GitHub/sai-weblab/latest-build/sai-weblab-0.0.1-SNAPSHOT.jar
