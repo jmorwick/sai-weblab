@@ -150,7 +150,7 @@ public class DBInterfaceController {
         Graph g = db.retrieveGraph(id);
         Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         Set<String> encoderNames = encoders.keySet();
-        String encoder = "sai-json-serializer"; // TODO: keep track in session of selection
+        String encoder = "feature-vector-serializer"; // TODO: keep track in session of selection
 
         model.put("id", id);
         model.put("encoders", encoderNames);
@@ -158,6 +158,28 @@ public class DBInterfaceController {
         model.put("encoding", encoders.get(encoder).apply(g));
         model.put("dbname", dbname);
         return "viewgraph";
+    }
+
+
+    @GetMapping({"/dbs/export/{dbname}"})
+    public String exportDatabase(Map<String, Object> model,
+                            @PathVariable("dbname") String dbname) {
+        DBInterface db = (DBInterface) appContext.getBean(dbname);
+        Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
+        Set<String> encoderNames = encoders.keySet();
+        String encoder = "feature-vector-serializer"; // TODO: keep track in session of selection
+
+        model.put("encoders", encoderNames);
+        model.put("encoder", encoder);
+        model.put("encoding",
+                db.getGraphIDStream()
+                .map(gid -> db.retrieveGraph(gid))
+                .map(graph -> encoders.get(encoder).apply(graph))
+                .reduce((x,y) -> x+"\n"+y)
+                .get()
+        );
+        model.put("dbname", dbname);
+        return "exportdb";
     }
 
     @PostMapping(value = "/dbs/retrieval/{dbname}")
