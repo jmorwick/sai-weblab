@@ -46,14 +46,13 @@
     <bean id="Unique Edges Per Graph:" class="net.sourcedestination.sai.reporting.metrics.UniqueEdgesPerGraph"/>
 
     <!-- graph serialization -->
-    <bean id="feature-vector-serializer" class="net.sourcedestination.sai.weblab.plugins.LatentFeatureSerializer" />
     <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
     <bean id="sai-json-deserializer" class="net.sourcedestination.sai.graph.SaiGraphJsonDeserializer" />
     <bean id="sai-gml-deserializer" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer" />
 
     <!-- load sample database task -->
-     <bean id="populate-with-sponge-gml" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer"
+     <bean id="populate-with-new-data-gml" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer"
          factory-method="getGmlPopulator">
-        <constructor-arg value ="file:sponge-instances.gml" />
+        <constructor-arg value ="file:first-dataset.gml" />
     </bean>
 </beans>
