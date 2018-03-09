@@ -36,8 +36,6 @@
     <!-- statistics -->
     <bean id="Average Clustering Coefficient Per Graph:" class="net.sourcedestination.sai.reporting.metrics.AverageClusteringCoefficient"/>
     <bean id="Average Degree Per Graph:" class="net.sourcedestination.sai.reporting.metrics.AverageDegreePerGraph"/>
-    <!--  <bean id="Bridges: " class="net.sourcedestination.sai.rhog.stats.BridgesStat"/> /-->
-    <!-- <bean id="Connected: " class="net.sourcedestination.sai.rhog.stats.ConnectedStat"/>  /-->
     <bean id="Database Size:" class="net.sourcedestination.sai.reporting.metrics.DBSize"/>
     <bean id="Percentage Of End Points Per Graph:" class="net.sourcedestination.sai.reporting.metrics.PercentageOfEndPoints"/>
     <bean id="Percentage Of Isolated Points Per Graph:" class="net.sourcedestination.sai.reporting.metrics.PercentageOfIsolatedPoints"/>
@@ -46,6 +44,17 @@
     <bean id="Unique Edges Per Graph:" class="net.sourcedestination.sai.reporting.metrics.UniqueEdgesPerGraph"/>
 
     <!-- graph serialization -->
+<bean id="feature-vector-serializer" class="net.sourcedestination.sai.weblab.plugins.LatentFeatureSerializer" >
+    <constructor-arg> <list>
+        <ref bean="Average Clustering Coefficient Per Graph:" />
+        <ref bean="Average Degree Per Graph:" />
+        <ref bean="Percentage Of End Points Per Graph:" />
+        <ref bean="Percentage Of Isolated Points Per Graph:" />
+        <ref bean="Total Nodes Per Graph:" />
+        <ref bean="Unique Attributes Per Graph:" />
+        <ref bean="Unique Edges Per Graph:" />
+    </list></constructor-arg>
+</bean>
     <bean id="sai-json-serializer" class="net.sourcedestination.sai.graph.SaiGraphJsonSerializer" />
     <bean id="sai-json-deserializer" class="net.sourcedestination.sai.graph.SaiGraphJsonDeserializer" />
     <bean id="sai-gml-deserializer" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer" />
@@ -54,5 +63,10 @@
      <bean id="populate-with-first-dataset-gml" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer"
          factory-method="getGmlPopulator">
         <constructor-arg value ="file:first-dataset.gml" />
+    </bean>
+    <!-- load sample database task -->
+     <bean id="populate-with-sponge-dataset-gml" class="net.sourcedestination.sai.tinkerpop.graph.TinkerPopGmlDeserializer"
+         factory-method="getGmlPopulator">
+        <constructor-arg value ="file:sponge-instances.gml" />
     </bean>
 </beans>
