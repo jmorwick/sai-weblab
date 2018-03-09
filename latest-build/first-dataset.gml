@@ -1,5 +1,3 @@
-Creator "igraph version 0.7.1 Thu Mar  8 11:16:07 2018"
-Version 1
 graph
 [
   directed 1
