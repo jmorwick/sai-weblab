@@ -23,7 +23,6 @@ public class TaskManager {
     private int nextTaskId = 1;
     private Map<Integer,Task> trackedTasks = new HashMap<>();
     private Map<Integer,CompletableFuture<Log>> taskFutures = new HashMap<>();
-    private Map<Integer,Log> taskLogs = new HashMap<>();
     private Map<Integer,Date> startTimes = new HashMap<>();
     private Map<Integer,Date> endTimes = new HashMap<>();
     private Map<Integer, Long> taskTimes = new HashMap<>();
@@ -39,7 +38,6 @@ public class TaskManager {
                     synchronized(manager) {
                         endTimes.put(id, new Date());
                         taskTimes.put(id, (System.nanoTime() - startTime) / 1000000);
-                        taskLogs.put(id, log);
                     }
                     return log;
                 });
@@ -55,10 +53,6 @@ public class TaskManager {
 
     public synchronized Task getTask(int id) {
         return trackedTasks.get(id);
-    }
-
-    public synchronized Log getResult(int id) {
-        return taskLogs.get(id);
     }
 
     public synchronized int addGraphRetrievalTask(DBInterface db, GraphRetriever retriever, Graph q, int maxResults) {

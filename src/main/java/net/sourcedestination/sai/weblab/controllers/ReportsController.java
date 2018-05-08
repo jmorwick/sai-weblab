@@ -33,10 +33,6 @@ public class ReportsController {
         Map<String,String> logs = new HashMap<>();
         for(int tid : taskManager.getTrackedTaskIds()) {
             Task t = taskManager.getTask(tid);
-            Log l = taskManager.getResult(tid);
-            if(l != null) {
-                logs.put(""+tid, l.getTaskName());
-            }
         }
         model.put("logs", logs);
         return "reports";
@@ -45,10 +41,7 @@ public class ReportsController {
     @GetMapping("/reports/view/{taskid}")
     public String viewTask(Map<String, Object> model,
                        @PathVariable("taskid") int taskid) {
-        Log log = taskManager.getResult(taskid);
         model.put("taskid", ""+taskid);
-        model.put("taskname", log.getTaskName());
-        model.put("queryids", IntStream.range(1,log.getNumQueryRecords()).toArray());
         return "viewlog";
     }
 
@@ -60,14 +53,8 @@ public class ReportsController {
         BiMap<String,DBInterface> dbs =
                 HashBiMap.create(appContext.getBeansOfType(DBInterface.class));
 
-        Log log = taskManager.getResult(taskid);
-        QueryRecord r = log.getQueryRecord(queryid-1);
-        model.put("query", ""+r.getQuery());
-        model.put("graphids", r.getRetrievedGraphIDs().collect(Collectors.toList()));
         model.put("taskid", ""+taskid);
         model.put("queryid", ""+queryid);
-        model.put("dbname", dbs.inverse().get(r.getDB()));
-        model.put("taskname", log.getTaskName());
         return "viewquery";
     }
 
