@@ -23,6 +23,8 @@
 
     <legend>Launch Task:</legend>
 
+    <#include "tasks/retrieval-simple.ftl">
+    <#include "tasks/classification.ftl">
     <#include "tasks/classification.ftl">
 
 </div>

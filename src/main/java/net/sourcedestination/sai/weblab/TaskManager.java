@@ -1,18 +1,11 @@
 package net.sourcedestination.sai.weblab;
 
-import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.graph.Graph;
-import net.sourcedestination.sai.reporting.GraphRetrieverListener;
-import net.sourcedestination.sai.reporting.Log;
-import net.sourcedestination.sai.reporting.QueryRecord;
-import net.sourcedestination.sai.retrieval.GraphRetriever;
+import com.google.common.collect.Sets;
 import net.sourcedestination.sai.task.Task;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 /**
  * Created by jmorwick on 7/19/17.
@@ -22,24 +15,24 @@ public class TaskManager {
 
     private int nextTaskId = 1;
     private Map<Integer,Task> trackedTasks = new HashMap<>();
-    private Map<Integer,CompletableFuture<Log>> taskFutures = new HashMap<>();
+    private Map<Integer,CompletableFuture> taskFutures = new HashMap<>();
     private Map<Integer,Date> startTimes = new HashMap<>();
     private Map<Integer,Date> endTimes = new HashMap<>();
     private Map<Integer, Long> taskTimes = new HashMap<>();
 
-    public synchronized int addTask(Task<Log> t) {
+    public synchronized int addTask(Task t) {
         final int id = nextTaskId;
         final TaskManager manager = this;
         startTimes.put(id, new Date());
         trackedTasks.put(id, t);
         long startTime = System.nanoTime();
-        CompletableFuture<Log> f = CompletableFuture.supplyAsync(t)
-                .thenApply(log -> { // record the log here when finished
+        CompletableFuture f = CompletableFuture.supplyAsync(t)
+                .thenApply(result -> { // record the result here when finished
                     synchronized(manager) {
                         endTimes.put(id, new Date());
                         taskTimes.put(id, (System.nanoTime() - startTime) / 1000000);
                     }
-                    return log;
+                    return result;
                 });
         taskFutures.put(nextTaskId, f);
         return nextTaskId++;
@@ -49,44 +42,30 @@ public class TaskManager {
 
     public synchronized Date getEndTime(int id) { return endTimes.get(id); }
 
+    public synchronized Object getResult(int id) {
+        try {
+            return taskFutures.get(id).get();
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
     public synchronized Long getTaskTime(int id) { return taskTimes.get(id); }
 
     public synchronized Task getTask(int id) {
         return trackedTasks.get(id);
     }
 
-    public synchronized int addGraphRetrievalTask(DBInterface db, GraphRetriever retriever, Graph q, int maxResults) {
-        Log log = new Log(retriever.getClass().getName());
-        final GraphRetriever wretriever = new GraphRetrieverListener(retriever, log);
-        final TaskManager manager = this;
-        return addTask(new Task<Log>() {
-            private AtomicInteger progress = new AtomicInteger(0);
-            public Log get() {
-                QueryRecord r = new QueryRecord(q, db);
-                wretriever.retrieve(db,q).forEach(
-                        gid -> {
-                            r.recordRetrievedGraphID((int)gid);
-                            progress.incrementAndGet();
-                        }
-                );
-                log.recordQueryRecord(r);
-                progress.set(maxResults);
-                return log;
-            }
-
-            @Override
-            public String getTaskName() { return retriever.getClass().getName(); }
-
-            @Override
-            public int getProgressUnits() { return progress.get(); }
-
-            @Override
-            public int getTotalProgressUnits() { return maxResults; }
-
-        });
-    }
-
     public synchronized Set<Integer> getTrackedTaskIds() {
         return new HashSet<Integer>(trackedTasks.keySet());
     }
+
+    public synchronized Set<Integer> getCompletedTaskIds() {
+        return new HashSet<Integer>(endTimes.keySet());
+    }
+
+    public synchronized Set<Integer> getRunningTaskIds() {
+        return Sets.difference(getTrackedTaskIds(), getCompletedTaskIds());
+    }
+
 }

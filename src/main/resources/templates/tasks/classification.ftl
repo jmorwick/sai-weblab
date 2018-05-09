@@ -1,5 +1,5 @@
 <form action="/tasks/classification" method="post" ID="classification-form">
-    <h3>Cross Validation Retrieval Experiment</h3>
+    <h3>Classification Experiment</h3>
     <label>Data Source</label>
     <select class="form-control" name="db">
     <#list dbs as dbname, dbtype>
