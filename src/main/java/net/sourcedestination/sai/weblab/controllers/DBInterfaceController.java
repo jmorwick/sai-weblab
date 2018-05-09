@@ -49,6 +49,8 @@ public class DBInterfaceController {
             session.setAttribute("defaultencoder", "none");
         if(session.getAttribute("defaultdecoder") == null)
             session.setAttribute("defaultdecoder", "none");
+        if(session.getAttribute("defaultdb") == null)
+            session.setAttribute("defaultdb", "none");
         return session;
     }
 
@@ -61,73 +63,74 @@ public class DBInterfaceController {
         this.appContext = appContext;
     }
 
-    @GetMapping({"/", "/dbs"})
-    public String view(Map<String, Object> model) {
+    @GetMapping({"/dbs", "/"})
+    public String viewDB(Map<String, Object> model,
+                         @RequestParam(value = "selecteddb", required = false) String selecteddb) {
+
         Map<String, DBInterface> dbs = appContext.getBeansOfType(DBInterface.class);
         Map<String, String> dbsinfo = dbs.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> e.getValue().getClass().getSimpleName()));
 
-        model.put("dbs", dbsinfo);
-        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
-        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
-        return "main";
-    }
-
-    @GetMapping({"/dbs/view/{dbname}"})
-    public String viewDB(Map<String, Object> model,
-                         @PathVariable("dbname") String dbname) {
-        DBInterface db = (DBInterface) appContext.getBean(dbname);
-        model.put("dbname", dbname);
-
-        // check stats
-        Map<String, String> stats = new HashMap<>();
-        Map<String, String> statProgress = new HashMap<>();
-        Map<String, String> statComputable = new HashMap<>();
-        Map<String, DBMetric> statGens = appContext.getBeansOfType(DBMetric.class);
-        for (String statName : statGens.keySet()) {
-            DBMetric stat = statGens.get(statName);
-            if (stat instanceof FastDBMetric) {
-                stats.put(statName, "" + stat.apply(db).get());
-            } else if (statValues.containsKey(makeTuple(db, stat))) {
-                statComputable.put(statName, statName);
-                stats.put(statName, statValues.get(makeTuple(db, stat)).toString());
-            } else {
-                statComputable.put(statName, statName);
-                stats.put(statName, "");
-            }
-
-            if (statTasks.containsKey(makeTuple(db, stat))) {
-                statProgress.put(statName, "" + (
-                        100.0 * statTasks.get(makeTuple(db, stat)).getPercentageDone()));
-            }
+        if(selecteddb == null) {
+            selecteddb = (String)getSession().getAttribute("defaultdb");
         }
+        model.put("dbs", dbsinfo);
+        model.put("selecteddb", selecteddb);
 
-        model.put("stats", stats);
-        model.put("statProgress", statProgress);
-        model.put("statComputable", statComputable);
+        if(!selecteddb.equals("none")) {
+            DBInterface db = (DBInterface) appContext.getBean(selecteddb);
 
-        // find encoders
-        Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
-        model.put("encoders", encoders.keySet());
+            getSession().setAttribute("defaultdb", selecteddb);
+            // check stats
+            Map<String, String> stats = new HashMap<>();
+            Map<String, String> statProgress = new HashMap<>();
+            Map<String, String> statComputable = new HashMap<>();
+            Map<String, DBMetric> statGens = appContext.getBeansOfType(DBMetric.class);
+            for (String statName : statGens.keySet()) {
+                DBMetric stat = statGens.get(statName);
+                if (stat instanceof FastDBMetric) {
+                    stats.put(statName, "" + stat.apply(db).get());
+                } else if (statValues.containsKey(makeTuple(db, stat))) {
+                    statComputable.put(statName, statName);
+                    stats.put(statName, statValues.get(makeTuple(db, stat)).toString());
+                } else {
+                    statComputable.put(statName, statName);
+                    stats.put(statName, "");
+                }
 
-        // find decoders
-        Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
-        Set<String> decoderNames = decoders.keySet();
-        model.put("decoders", decoderNames);
+                if (statTasks.containsKey(makeTuple(db, stat))) {
+                    statProgress.put(statName, "" + (
+                            100.0 * statTasks.get(makeTuple(db, stat)).getPercentageDone()));
+                }
+            }
 
-        // find populators
-        Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
-        model.put("populators", populators.keySet());
+            model.put("stats", stats);
+            model.put("statProgress", statProgress);
+            model.put("statComputable", statComputable);
+
+            // find encoders
+            Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
+            model.put("encoders", encoders.keySet());
+
+            // find decoders
+            Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
+            Set<String> decoderNames = decoders.keySet();
+            model.put("decoders", decoderNames);
+
+            // find populators
+            Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
+            model.put("populators", populators.keySet());
 
 
-        // find retrievers
-        Map<String, GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
-        model.put("retrievers", retrievers.keySet());
+            // find retrievers
+            Map<String, GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
+            model.put("retrievers", retrievers.keySet());
 
 
-        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
-        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
+            model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
+            model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
+        }
         return "viewdb";
     }
 
