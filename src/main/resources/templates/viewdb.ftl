@@ -22,6 +22,13 @@
     <form action="/dbs/retrieve/${dbname}" method="get">
         <legend>Retrieve a Graph</legend>
         <div class="form-group">
+
+            <label>Encoding</label>
+            <select class="form-control" name="format">
+            <#list encoders as encodername>
+                <option <#if encodername == defaultencoder>SELECTED</#if>>${encodername}</option>
+            </#list>
+            </select>
             <label>Graph ID</label>
             <input class="form-control" type="text" name="id"/>
             <button type="submit" class="btn btn-primary">View</button>
@@ -32,10 +39,10 @@
     <form action="/dbs/create/${dbname}" method="post">
         <legend>Add a Graph</legend>
         <div class="form-group">
-            <label>Encoder</label>
-            <select class="form-control" name="encodername">
-            <#list encoders as encodername>
-                <option>${encodername}</option>
+            <label>Decoder</label>
+            <select class="form-control" name="format">
+            <#list decoders as decodername>
+                <option <#if decodername == defaultdecoder>SELECTED</#if>>${decodername}</option>
             </#list>
             </select>
             <label>Graph Data</label>
@@ -89,10 +96,9 @@
         </select>
         <label>Encoding</label>
         <select class="form-control" name="format">
-            <option>none</option>
-        <#list decoders as decodername>
-            <option>${decodername}</option>
-        </#list>
+            <#list decoders as decodername>
+                <option <#if decodername == defaultdecoder>SELECTED</#if>>${decodername}</option>
+            </#list>
         </select>
         <label>Graph Data</label>
         <textarea class="form-control" name="query"></textarea>

@@ -2,6 +2,7 @@ package net.sourcedestination.sai.weblab.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,17 +24,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpSession;
 
 import static net.sourcedestination.funcles.tuple.Tuple2.makeTuple;
 
 @Controller
 public class DBInterfaceController {
 
+    private static Logger logger = Logger.getLogger(DBInterfaceController.class);
+
     private final ApplicationContext appContext;
     private final Map<Tuple2<DBInterface, DBMetric>, Task> statTasks;
     private final Map<Tuple2<DBInterface, DBMetric>, Double> statValues;
     private TaskManager taskManager;
+
+
+    public HttpSession getSession() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(true);
+        if(session.getAttribute("defaultencoder") == null)
+            session.setAttribute("defaultencoder", "none");
+        if(session.getAttribute("defaultdecoder") == null)
+            session.setAttribute("defaultdecoder", "none");
+        return session;
+    }
 
     @Autowired
     public DBInterfaceController(ApplicationContext appContext,
@@ -52,6 +72,8 @@ public class DBInterfaceController {
                         e -> e.getValue().getClass().getSimpleName()));
 
         model.put("dbs", dbsinfo);
+        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
+        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         return "main";
     }
 
@@ -89,7 +111,7 @@ public class DBInterfaceController {
         model.put("statComputable", statComputable);
 
         // find encoders
-        Map<String, GraphDeserializer> encoders = appContext.getBeansOfType(GraphDeserializer.class);
+        Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         model.put("encoders", encoders.keySet());
 
         // find decoders
@@ -107,6 +129,8 @@ public class DBInterfaceController {
         model.put("retrievers", retrievers.keySet());
 
 
+        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
+        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         return "viewdb";
     }
 
@@ -131,11 +155,11 @@ public class DBInterfaceController {
 
     @PostMapping(value = "/dbs/create/{dbname}")
     public RedirectView createGraph(@PathVariable("dbname") String dbname,
-                                    @RequestParam("encodername") String encodername,
+                                    @RequestParam("format") String format,
                                     @RequestParam("encoding") String encoding) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
         final GraphDeserializer<? extends Graph> encoder =
-                (GraphDeserializer) appContext.getBean(encodername);
+                (GraphDeserializer) appContext.getBean(format);
         final Graph g = encoder.apply(encoding);
         final int id = db.addGraph(g);
 
@@ -145,40 +169,48 @@ public class DBInterfaceController {
     @GetMapping({"/dbs/retrieve/{dbname}"})
     public String viewGraph(Map<String, Object> model,
                             @PathVariable("dbname") String dbname,
-                            @RequestParam("id") int id) {
+                            @RequestParam("id") int id,
+                            @RequestParam("format") String format) {
+        logger.info("User initiated retrieval of graph #"+id +
+            " to " + format + " from " + dbname);
+
         DBInterface db = (DBInterface) appContext.getBean(dbname);
         Graph g = db.retrieveGraph(id);
         Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         Set<String> encoderNames = encoders.keySet();
-        String encoder = "feature-vector-serializer"; // TODO: keep track in session of selection
 
         model.put("id", id);
         model.put("encoders", encoderNames);
-        model.put("encoder", encoder);
-        model.put("encoding", encoders.get(encoder).apply(g));
+        model.put("encoder", format);
+        getSession().setAttribute("defaultencoder", format); // remember the choice
+        model.put("encoding", encoders.get(format).apply(g));
         model.put("dbname", dbname);
+        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
+        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         return "viewgraph";
     }
 
 
     @GetMapping({"/dbs/export/{dbname}"})
     public String exportDatabase(Map<String, Object> model,
-                            @PathVariable("dbname") String dbname) {
+                            @PathVariable("dbname") String dbname,
+                            @RequestParam("format") String format) {
         DBInterface db = (DBInterface) appContext.getBean(dbname);
         Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         Set<String> encoderNames = encoders.keySet();
-        String encoder = "feature-vector-serializer"; // TODO: keep track in session of selection
-
         model.put("encoders", encoderNames);
-        model.put("encoder", encoder);
+        model.put("encoder", format);
+        getSession().setAttribute("defaultencoder", format); // remember the choice
         model.put("encoding",
                 db.getGraphIDStream()
                 .map(gid -> db.retrieveGraph(gid))
-                .map(graph -> encoders.get(encoder).apply(graph))
+                .map(graph -> encoders.get(format).apply(graph))
                 .reduce((x,y) -> x+"\n"+y)
                 .get()
         );
         model.put("dbname", dbname);
+        model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
+        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         return "exportdb";
     }
 
@@ -195,6 +227,7 @@ public class DBInterfaceController {
         if (format != null && format.length() > 0 && !format.equals("none") &&
                 queryString != null && queryString.length() > 0) {
             // a format and query were specified
+            getSession().setAttribute("defaultdecoder", format);  // remember this choice
             final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer<? extends Graph>) appContext.getBean(format);
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
             query = deserializer.apply(queryString);
