@@ -2,12 +2,10 @@ package net.sourcedestination.sai.weblab.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.sai.db.DBInterface;
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -45,7 +42,7 @@ public class DBInterfaceController {
     private TaskManager taskManager;
 
 
-    public HttpSession getSession() {
+    public static HttpSession getSession() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(true);
         if(session.getAttribute("defaultencoder") == null)
@@ -212,34 +209,6 @@ public class DBInterfaceController {
         model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
         model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         return "exportdb";
-    }
-
-    @PostMapping(value = "/dbs/retrieval/{dbname}")
-    public RedirectView simpleRetrieval(@PathVariable("dbname") String dbname,
-                                        @RequestParam("retriever") String retrieverName,
-                                        @RequestParam("query") String queryString,
-                                        @RequestParam("format") String format,
-                                        @RequestParam("skip") int skipResults,
-                                        @RequestParam("max") int maxResults) {
-        final DBInterface db = (DBInterface) appContext.getBean(dbname);
-        final GraphRetriever retriever = (GraphRetriever) appContext.getBean(retrieverName);
-        Graph query = null;
-        if (format != null && format.length() > 0 && !format.equals("none") &&
-                queryString != null && queryString.length() > 0) {
-            // a format and query were specified
-            getSession().setAttribute("defaultdecoder", format);  // remember this choice
-            final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer<? extends Graph>) appContext.getBean(format);
-            // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
-            query = deserializer.apply(queryString);
-        }
-        GraphRetriever wrappedRetriever = new GraphRetriever() {
-            @Override
-            public Stream<Integer> retrieve(DBInterface db, Graph graph) {
-                return retriever.retrieve(db, graph).skip(skipResults).limit(maxResults);
-            }
-        };
-        taskManager.addGraphRetrievalTask(db, wrappedRetriever, query, maxResults);
-        return new RedirectView("/tasks");
     }
 
 
