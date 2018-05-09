@@ -3,8 +3,6 @@ package net.sourcedestination.sai.weblab.controllers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.reporting.Log;
-import net.sourcedestination.sai.reporting.QueryRecord;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
