@@ -150,7 +150,7 @@ public class DBInterfaceController {
                     });
         }
 
-        return new RedirectView("/dbs/view/" + dbname);
+        return new RedirectView("/dbs");
     }
 
     @PostMapping(value = "/dbs/create/{dbname}")
@@ -163,7 +163,7 @@ public class DBInterfaceController {
         final Graph g = encoder.apply(encoding);
         final int id = db.addGraph(g);
 
-        return new RedirectView("/dbs/view/" + dbname);
+        return new RedirectView("/dbs");
     }
 
     @GetMapping({"/dbs/retrieve/{dbname}"})
@@ -219,7 +219,7 @@ public class DBInterfaceController {
     public RedirectView clearDB(@PathVariable("dbname") String dbname) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
         db.getGraphIDStream().forEach(db::deleteGraph);
-        return new RedirectView("/dbs/view/" + dbname);
+        return new RedirectView("/dbs");
     }
 
 
