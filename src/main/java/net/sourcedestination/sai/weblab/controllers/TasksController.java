@@ -58,6 +58,7 @@ public class TasksController {
             inactiveTasks.put(""+tid, ""+t.getTaskName());
             startTimes.put(""+tid, taskManager.getStartTime(tid).toString());
             endTimes.put(""+tid, taskManager.getEndTime(tid).toString());
+            taskTimes.put(""+tid, ""+(taskManager.getEndTime(tid).getTime() - taskManager.getStartTime(tid).getTime()));
             Object result = taskManager.getResult(tid);
             results.put(""+tid, result == null ? "n/a" : result.toString());
         }

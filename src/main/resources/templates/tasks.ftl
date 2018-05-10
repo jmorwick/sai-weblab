@@ -6,7 +6,7 @@
     <ul>
         <#list activetasks as taskid, taskname>
         <div class="row">
-            <li>#${taskid} - ${taskname} (${startTimes[taskid]}) | <label>percentage complete: </label> <span class="labeled-value">${percentagecomplete[taskid]}</span></li>
+            <li>#${taskid} - ${taskname} (${startTimes[taskid]}) | <label>progress: </label><span class="labeled-value">${progress[taskid]}</span> | <label>percentage complete: </label> <span class="labeled-value">${percentagecomplete[taskid]}</span></li>
         </div>
         </#list>
     </ul>
