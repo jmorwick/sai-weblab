@@ -1,3 +1,4 @@
+<!-- TODO: complete this template
 <form action="/tasks/classification" method="post" ID="classification-form">
     <h3>Classification Experiment</h3>
     <label>Data Source</label>
@@ -16,3 +17,4 @@
     <input class="form-control" type="text" name="folds"/>
     <button type="submit" class="btn btn-primary">Launch Task</button>
 </form>
+/-->

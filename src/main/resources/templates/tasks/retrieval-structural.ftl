@@ -1,3 +1,4 @@
+<!-- TODO: complete this template
 <form action="/dbs/retrieval" method="post">
     <legend>Structural Retrieval</legend>
         <label>Retriever</label>
@@ -21,3 +22,4 @@
 
         <button type="submit" class="btn btn-primary">Retrieve Similar Graphs</button>
 </form>
+/-->

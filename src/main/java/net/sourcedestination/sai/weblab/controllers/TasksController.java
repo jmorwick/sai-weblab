@@ -4,6 +4,7 @@ import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.learning.ClassificationModelGenerator;
+import net.sourcedestination.sai.reporting.GraphProcessor;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.sourcedestination.sai.weblab.controllers.DBInterfaceController.getSession;
 
@@ -72,6 +72,13 @@ public class TasksController {
         model.put("dbs", dbsinfo);
 
 
+        Map<String, GraphProcessor> processors = appContext.getBeansOfType(GraphProcessor.class);
+        Map<String, String> processorinfo = processors.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> e.getValue().getClass().getSimpleName()));
+
+        model.put("processors", processorinfo);
+
         Map<String, ClassificationModelGenerator> classifiers =
                 appContext.getBeansOfType(ClassificationModelGenerator.class);
 
@@ -93,9 +100,24 @@ public class TasksController {
                                         @RequestParam("query") String queryString,
                                         @RequestParam("format") String format,
                                         @RequestParam("skip") int skipResults,
-                                        @RequestParam("max") int maxResults) {
+                                        @RequestParam("max") int maxResults,
+                                        @RequestParam(name = "processors[]", required = false)
+                                                    String[] graphProcessingBeanNames) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
         final GraphRetriever retriever = (GraphRetriever) appContext.getBean(retrieverName);
+
+        // find graph processing beans
+        final GraphProcessor[] graphProcessingBeans;
+        if(graphProcessingBeanNames != null) {
+            graphProcessingBeans = new GraphProcessor[graphProcessingBeanNames.length];
+            for(int i=0; i<graphProcessingBeanNames.length; i++)
+                graphProcessingBeans[i] = ((GraphProcessor) appContext.getBean(graphProcessingBeanNames[i]));
+
+        } else {
+            graphProcessingBeans = new GraphProcessor[0];
+        }
+
+
         Graph query;
         if (format != null && format.length() > 0 && !format.equals("none") &&
                 queryString != null && queryString.length() > 0) {
@@ -105,23 +127,28 @@ public class TasksController {
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
             query = deserializer.apply(queryString);
         } else {
-            throw new RuntimeException("bad query"); // TODO: clean this up
+            query = null;
         }
-        GraphRetriever wrappedRetriever = new GraphRetriever() {
-            @Override
-            public Stream<Integer> retrieve(DBInterface db, Graph graph) {
-                return retriever.retrieve(db, graph).skip(skipResults).limit(maxResults);
-            }
-        };
 
         taskManager.addTask(new Task() {
             private AtomicInteger progress = new AtomicInteger(0);
             public Object get() {
-                retriever.retrieve(db,query).forEach(
-                        gid -> {
+                retriever.retrieve(db,query)
+                        .skip(skipResults)
+                        .limit(maxResults)
+                        .forEach(gid -> {
                             progress.incrementAndGet();
-                        }
-                    );
+                            GraphRetriever.logger.info("retrieved Graph ID #"+gid);
+
+                            if(graphProcessingBeans.length > 0) {
+                                Graph g = db.retrieveGraph((int)gid);
+                                GraphRetriever.logger.info("retrieved Full Graph #"+gid);
+                                for(GraphProcessor processor : graphProcessingBeans)
+                                    processor.accept(g);
+
+                                GraphRetriever.logger.info("completed processing Graph #"+gid);
+                            }
+                        });
                 progress.set(maxResults);
                 return null;
             }
