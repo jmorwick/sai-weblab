@@ -12,8 +12,6 @@ import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
-import net.sourcedestination.sai.reporting.metrics.db.DBMetric;
-import net.sourcedestination.sai.reporting.metrics.db.FastDBMetric;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
@@ -37,8 +35,6 @@ public class DBInterfaceController {
     private static Logger logger = Logger.getLogger(DBInterfaceController.class);
 
     private final ApplicationContext appContext;
-    private final Map<Tuple2<DBInterface, DBMetric>, Task> statTasks;
-    private final Map<Tuple2<DBInterface, DBMetric>, Double> statValues;
     private TaskManager taskManager;
 
 
@@ -57,8 +53,6 @@ public class DBInterfaceController {
     @Autowired
     public DBInterfaceController(ApplicationContext appContext,
                                  TaskManager taskManager) {
-        this.statTasks = new ConcurrentHashMap<>();
-        this.statValues = new ConcurrentHashMap<>();
         this.taskManager = taskManager;
         this.appContext = appContext;
     }
@@ -82,32 +76,8 @@ public class DBInterfaceController {
             DBInterface db = (DBInterface) appContext.getBean(selecteddb);
 
             getSession().setAttribute("defaultdb", selecteddb);
-            // check stats
-            Map<String, String> stats = new HashMap<>();
-            Map<String, String> statProgress = new HashMap<>();
-            Map<String, String> statComputable = new HashMap<>();
-            Map<String, DBMetric> statGens = appContext.getBeansOfType(DBMetric.class);
-            for (String statName : statGens.keySet()) {
-                DBMetric stat = statGens.get(statName);
-                if (stat instanceof FastDBMetric) {
-                    stats.put(statName, "" + stat.apply(db).get());
-                } else if (statValues.containsKey(makeTuple(db, stat))) {
-                    statComputable.put(statName, statName);
-                    stats.put(statName, statValues.get(makeTuple(db, stat)).toString());
-                } else {
-                    statComputable.put(statName, statName);
-                    stats.put(statName, "");
-                }
 
-                if (statTasks.containsKey(makeTuple(db, stat))) {
-                    statProgress.put(statName, "" + (
-                            100.0 * statTasks.get(makeTuple(db, stat)).getPercentageDone()));
-                }
-            }
-
-            model.put("stats", stats);
-            model.put("statProgress", statProgress);
-            model.put("statComputable", statComputable);
+            model.put("dbsize", db.getDatabaseSize());
 
             // find encoders
             Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
@@ -132,25 +102,6 @@ public class DBInterfaceController {
             model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         }
         return "viewdb";
-    }
-
-    @PostMapping(value = "/dbs/recompute/{dbname}/{statname}")
-    public RedirectView recomputeStat(@PathVariable("dbname") String dbname,
-                                      @PathVariable("statname") String statname) {
-        final DBInterface db = (DBInterface) appContext.getBean(dbname);
-        final DBMetric stat = (DBMetric) appContext.getBean(statname);
-        final Tuple2<DBInterface, DBMetric> key = makeTuple(db, stat);
-        if (!statTasks.containsKey(key)) {
-            Task<Double> t = stat.apply(db);
-            statTasks.put(key, t);
-            CompletableFuture.supplyAsync(t)
-                    .thenAccept(value -> {
-                        statValues.put(key, value);
-                        statTasks.remove(key);
-                    });
-        }
-
-        return new RedirectView("/dbs");
     }
 
     @PostMapping(value = "/dbs/create/{dbname}")

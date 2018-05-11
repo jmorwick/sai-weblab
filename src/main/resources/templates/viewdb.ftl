@@ -16,21 +16,8 @@
 
     <#if selecteddb != "none">
 
-    <legend>Statistics</legend>
     <div class="dbstats">
-        <#list stats as statname, statvalue>
-            <div>
-                <label>${statname}</label> <div class="value">${statvalue}</div>
-                <#if statProgress[statname]?? >
-                   <div class="annotation">(%${statProgress[statname]})</div>
-                </#if>
-                <#if statComputable[statname]?? >
-                    <form action="/dbs/recompute/${selecteddb}/${statname}" method="POST">
-                        <button type="submit" class="btn btn-primary">Recompute</button>
-                    </form>
-                </#if>
-            </div>
-        </#list>
+        <label>Size</label> <div>${dbsize}</div>
     </div>
 
     <form action="/dbs/retrieve/${selecteddb}" method="get">
