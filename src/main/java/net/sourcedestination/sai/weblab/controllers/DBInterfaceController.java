@@ -1,20 +1,15 @@
 package net.sourcedestination.sai.weblab.controllers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
-import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -26,8 +21,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpSession;
-
-import static net.sourcedestination.funcles.tuple.Tuple2.makeTuple;
 
 @Controller
 public class DBInterfaceController {
