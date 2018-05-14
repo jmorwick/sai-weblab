@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 public class ReportsController {
