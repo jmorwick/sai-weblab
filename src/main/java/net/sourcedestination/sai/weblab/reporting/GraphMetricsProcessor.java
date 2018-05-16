@@ -1,6 +1,5 @@
 package net.sourcedestination.sai.weblab.reporting;
 
-import net.sourcedestination.funcles.tuple.Tuple2;
 import net.sourcedestination.funcles.tuple.Tuple3;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
@@ -14,9 +13,6 @@ import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 
 public class GraphMetricsProcessor implements ExperimentLogProcessor {
-
-    @Autowired
-    private ApplicationContext appContext;
 
     public enum AggregationType {
         MIN {
@@ -36,18 +32,16 @@ public class GraphMetricsProcessor implements ExperimentLogProcessor {
         public abstract OptionalDouble aggregate(DoubleStream s);
     }
 
-
-    public static Supplier<ExperimentLogProcessor> processorFactory(
-            Tuple3<String, AggregationType, GraphMetric> ... metrics) {
-        return () -> new GraphMetricsProcessor(metrics);
-    }
-
+    private final Map<String, DBInterface> dbs;
     private final Map<String,GraphMetric> metrics;
     private final Map<String,AggregationType> aggregationTypes;
     private final Map<String,List<Double>> metricValues;
     private int progress = 0;
 
-    public GraphMetricsProcessor(Tuple3<String, AggregationType, GraphMetric> ... metrics) {
+    public GraphMetricsProcessor(Map<String, DBInterface> dbs,
+                                 Tuple3<String, AggregationType, GraphMetric> ... metrics) {
+        this.dbs = dbs;
+
         this.metrics = new HashMap<>();
         this.aggregationTypes = new HashMap<>();
         this.metricValues = new HashMap<>();
@@ -67,7 +61,7 @@ public class GraphMetricsProcessor implements ExperimentLogProcessor {
     public void processLogMessage(String ... groups) {
         final int gid = Integer.parseInt(groups[1]);
         final String dbname = groups[2];
-        final DBInterface db = (DBInterface)appContext.getBean(dbname);
+        final DBInterface db = dbs.get(dbname);
         final Graph g = db.retrieveGraph(gid);
 
         for(String metricName : metrics.keySet()) {
