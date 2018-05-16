@@ -1,9 +1,12 @@
 package net.sourcedestination.sai.weblab.reporting;
 
+import org.json.JSONObject;
+
 import java.util.Map;
+import java.util.function.Supplier;
 
 /** interface for a class that processes log results for a report */
-public interface Processor {
+public interface ExperimentLogProcessor extends Supplier<Map<String,JSONObject>> {
 
     /** returns a regular-expression to match against log messages
      *
@@ -21,12 +24,4 @@ public interface Processor {
      */
     public void processLogMessage(String ... groups);
 
-    /** Updates the model with any data needed for the view.
-     *
-     * Only called after all log entries have been processed, but may be called
-     * repeatedly.
-     * @param model model used to render the complete report page
-     */
-    public void updateModel(Map<String, Object> model);
-    
 }

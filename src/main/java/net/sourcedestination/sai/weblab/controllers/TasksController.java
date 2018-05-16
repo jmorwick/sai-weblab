@@ -138,7 +138,7 @@ public class TasksController {
                         .limit(maxResults)
                         .forEach(gid -> {
                             progress.incrementAndGet();
-                            GraphRetriever.logger.info("retrieved Graph ID #"+gid);
+                            GraphRetriever.logger.info("retrieved Graph ID #"+gid+" from "+dbname);
                         });
                 progress.set(maxResults);
                 return null;
