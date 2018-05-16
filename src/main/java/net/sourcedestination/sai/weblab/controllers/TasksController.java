@@ -139,15 +139,6 @@ public class TasksController {
                         .forEach(gid -> {
                             progress.incrementAndGet();
                             GraphRetriever.logger.info("retrieved Graph ID #"+gid);
-
-                            if(graphProcessingBeans.length > 0) {
-                                Graph g = db.retrieveGraph((int)gid);
-                                GraphRetriever.logger.info("retrieved Full Graph #"+gid);
-                                for(GraphProcessor processor : graphProcessingBeans)
-                                    processor.accept(g);
-
-                                GraphRetriever.logger.info("completed processing Graph #"+gid);
-                            }
                         });
                 progress.set(maxResults);
                 return null;
