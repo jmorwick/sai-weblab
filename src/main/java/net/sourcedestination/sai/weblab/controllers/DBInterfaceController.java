@@ -29,9 +29,6 @@ public class DBInterfaceController {
     @Autowired
     private ApplicationContext appContext;
 
-    @Autowired
-    private TasksController tasksController;
-
 
     public static HttpSession getSession() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -75,10 +72,6 @@ public class DBInterfaceController {
             Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
             Set<String> decoderNames = decoders.keySet();
             model.put("decoders", decoderNames);
-
-            // find populators
-            Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
-            model.put("populators", populators.keySet());
 
 
             // find retrievers
@@ -159,17 +152,6 @@ public class DBInterfaceController {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
         db.getGraphIDStream().forEach(db::deleteGraph);
         return new RedirectView("/dbs");
-    }
-
-
-    @PostMapping(value = "/dbs/populate/{dbname}")
-    public RedirectView populateDB(@PathVariable("dbname") String dbname,
-                                   @RequestParam("populatorname") String populatorname) {
-        final DBInterface db = (DBInterface) appContext.getBean(dbname);
-        final DBPopulator pop = (DBPopulator) appContext.getBean(populatorname);
-        int taskId = tasksController.addTask(pop.apply(db));
-        return new RedirectView("/tasks");
-
     }
 
 }

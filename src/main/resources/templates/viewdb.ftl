@@ -60,19 +60,6 @@
         </div>
     </form>
 
-    <form action="/dbs/populate/${selecteddb}" method="post">
-        <legend>Populate the Database</legend>
-        <div class="form-group">
-            <label>Data Source</label>
-            <select class="form-control" name="populatorname">
-            <#list populators as populatorname>
-                <option>${populatorname}</option>
-            </#list>
-            </select>
-            <button type="submit" class="btn btn-primary">Populate Database</button>
-        </div>
-    </form>
-
 </div>
 
     </#if>

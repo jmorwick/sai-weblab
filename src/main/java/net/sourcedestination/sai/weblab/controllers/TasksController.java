@@ -90,7 +90,7 @@ public class TasksController {
     public synchronized Set<Integer> getRunningTaskIds() {
         return Sets.difference(getTrackedTaskIds(), getCompletedTaskIds());
     }
-    @GetMapping("tasks")
+    @GetMapping("/tasks")
     public String view(Map<String, Object> model) {
         Map<String,String> activeTasks = new HashMap<>();
         Map<String,String> inactiveTasks = new HashMap<>();
@@ -121,7 +121,7 @@ public class TasksController {
             results.put(""+tid, result == null ? "n/a" : result.toString());
         }
 
-
+        // find db interfaces
         Map<String, DBInterface> dbs = appContext.getBeansOfType(DBInterface.class);
         Map<String, String> dbsinfo = dbs.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
@@ -129,6 +129,11 @@ public class TasksController {
 
         model.put("dbs", dbsinfo);
 
+
+
+        // find populators
+        Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
+        model.put("populators", populators.keySet());
 
         Map<String, GraphProcessor> processors = appContext.getBeansOfType(GraphProcessor.class);
         Map<String, String> processorinfo = processors.entrySet().stream()
@@ -216,7 +221,7 @@ public class TasksController {
         return new RedirectView("/tasks");
     }
 
-    @PostMapping(value = "/dbs/populate")
+    @PostMapping(value = "/tasks/populate")
     public RedirectView populateDB(@RequestParam("dbname") String dbname,
                                    @RequestParam("populatorname") String populatorname) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
@@ -227,7 +232,7 @@ public class TasksController {
     }
 
 
-    @PostMapping("/reports/upload-log-file")
+    @PostMapping("/tasks/upload-log-file")
     public RedirectView loadReport(@RequestParam("file") MultipartFile file,
                                    @RequestParam(name = "processors[]", required = false)
                                            String[] logProcessingBeanNames)
