@@ -1,7 +1,6 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.funcles.tuple.Tuple3;
-import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphMetric;
 import net.sourcedestination.sai.analysis.GraphMetricsProcessor;
@@ -12,24 +11,37 @@ import net.sourcedestination.sai.learning.ClassificationModelGenerator;
 import net.sourcedestination.sai.retrieval.FeatureIndexBasedRetriever;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
+
 
 /**
  * Some static methods from the SAI library are intended to be used as method references
  * which implement some of SAI's functional interfaces. This class returns the
  * method references with factory methods so that they are accessible from the spring xml.
  */
-public class SaiBeans {
-    public static final FeatureIndexBasedRetriever getRetreiveByBasicFeatureIndexCount() {
+
+@Component("sai-bean-factory")
+public class SaiBeans implements ApplicationContextAware {
+
+    @Autowired
+    private ApplicationContext appContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext ac) {
+        appContext = ac;
+    }
+
+    public FeatureIndexBasedRetriever getRetreiveByBasicFeatureIndexCount() {
         return FeatureIndexBasedRetriever::retreiveByBasicFeatureIndexCount;
     }
 
-    public static final ClassificationModel getCheatingClassifier() {
+    public ClassificationModel getCheatingClassifier() {
         return  g -> {
             Optional<Feature> res = g.getFeatures()
                     .filter(f -> f.getName().equals("expected-classification")).findFirst();
@@ -37,21 +49,23 @@ public class SaiBeans {
         };
     }
 
-    public static final ClassificationModelGenerator getCheaterGenerator() {
+    public ClassificationModelGenerator getCheaterGenerator() {
         return (db, trainingLabels) -> getCheatingClassifier();
 
     }
 
-    public static ExperimentLogProcessorFactory graphMetricsProcessorFactory(
+    public ExperimentLogProcessorFactory graphMetricsProcessorFactory(
             Tuple3<String, GraphMetricsProcessor.AggregationType, GraphMetric>... metrics) {
-        return () -> new GraphMetricsProcessor(new DBInterfaces(), metrics);
+        return () -> new GraphMetricsProcessor(new DBInterfaces(appContext), metrics);
     }
 }
 
 class DBInterfaces implements Map<String, DBInterface> {
+    private static ApplicationContext appContext;
 
-    @Autowired
-    private ApplicationContext appContext;
+    public DBInterfaces(ApplicationContext appContext) {
+        this.appContext = appContext;
+    }
 
     @Override
     public int size() {
