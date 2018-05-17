@@ -6,9 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class ReportsController {
@@ -16,17 +15,23 @@ public class ReportsController {
     @Autowired
     private ApplicationContext appContext;
 
-    private Map<Integer, Map<String, Object>> reportModels
-            = new ConcurrentHashMap<>();
+    private final Map<Integer, Map<String, ? extends Object>> reportModels = new HashMap<>();
 
-    public void addReport(Integer id, Map<String, Object> report) {
-        reportModels.put(id, report);
+    public int addReport(Map<String, ? extends Object> report) {
+
+        // TODO: clean up any JSON objects in the report
+
+        synchronized (reportModels) {
+            reportModels.put(reportModels.size()+1, report);
+            return reportModels.size();
+        }
     }
 
     @GetMapping("/reports")
     public String view(Map<String, Object> model) {
-        model.put("reportids", reportModels.keySet());
-
+        synchronized (reportModels) {
+            model.put("reportids", reportModels.keySet());
+        }
 
         return "reports";
     }
@@ -35,8 +40,10 @@ public class ReportsController {
     public String viewTask(Map<String, Object> model,
                        @PathVariable("reportid") int reportid) {
         model.put("reportid", ""+reportid);
-        model.putAll(reportModels.get(reportid));
-        return "viewlog"; // TODO: determine how to handle views
+        synchronized (reportModels) {
+            model.putAll(reportModels.get(reportid));
+        }
+        return "viewreport"; // TODO: determine how to handle views
     }
 
 }

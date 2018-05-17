@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static net.sourcedestination.sai.weblab.controllers.DBInterfaceController.getSession;
@@ -35,6 +36,8 @@ public class TasksController {
     @Autowired
     private ApplicationContext appContext;
 
+    @Autowired
+    private ReportsController reportsController;
 
     private int nextTaskId = 1;
     private Map<Integer,Task> trackedTasks = new HashMap<>();
@@ -44,6 +47,10 @@ public class TasksController {
     private Map<Integer, Long> taskTimes = new HashMap<>();
 
     public synchronized int addTask(Task t) {
+        return addTask(t, x -> {});
+    }
+
+    public synchronized <T> int addTask(Task<T> t, Consumer<T> callback) {
         final int id = nextTaskId;
         final TasksController self = this;
         startTimes.put(id, new Date());
@@ -56,7 +63,7 @@ public class TasksController {
                         taskTimes.put(id, (System.nanoTime() - startTime) / 1000000);
                     }
                     return result;
-                });
+                }).thenAccept(callback);
         taskFutures.put(nextTaskId, f);
         return nextTaskId++;
     }
@@ -256,7 +263,9 @@ public class TasksController {
         }
 
         LogFileProcessor task = new LogFileProcessor(file.getInputStream(), file.getSize(), logProcessingBeans);
-        addTask(task);
+        addTask(task, report -> {
+            reportsController.addReport(report);
+        });
         return new RedirectView("/tasks");
     }
 }
