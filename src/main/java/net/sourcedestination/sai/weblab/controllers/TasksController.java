@@ -8,7 +8,6 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.learning.ClassificationModelGenerator;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.Task;
-import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;

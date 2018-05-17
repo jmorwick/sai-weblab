@@ -10,7 +10,6 @@ import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
-import net.sourcedestination.sai.weblab.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -27,8 +26,11 @@ public class DBInterfaceController {
 
     private static Logger logger = Logger.getLogger(DBInterfaceController.class);
 
-    private final ApplicationContext appContext;
-    private TaskManager taskManager;
+    @Autowired
+    private ApplicationContext appContext;
+
+    @Autowired
+    private TasksController tasksController;
 
 
     public static HttpSession getSession() {
@@ -41,13 +43,6 @@ public class DBInterfaceController {
         if(session.getAttribute("defaultdb") == null)
             session.setAttribute("defaultdb", "none");
         return session;
-    }
-
-    @Autowired
-    public DBInterfaceController(ApplicationContext appContext,
-                                 TaskManager taskManager) {
-        this.taskManager = taskManager;
-        this.appContext = appContext;
     }
 
     @GetMapping({"/dbs", "/"})
@@ -172,7 +167,7 @@ public class DBInterfaceController {
                                    @RequestParam("populatorname") String populatorname) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
         final DBPopulator pop = (DBPopulator) appContext.getBean(populatorname);
-        int taskId = taskManager.addTask(pop.apply(db));
+        int taskId = tasksController.addTask(pop.apply(db));
         return new RedirectView("/tasks");
 
     }
