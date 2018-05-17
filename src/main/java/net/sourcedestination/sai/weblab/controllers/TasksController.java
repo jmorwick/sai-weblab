@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -190,7 +189,8 @@ public class TasksController {
                 queryString != null && queryString.length() > 0) {
             // a format and query were specified
             getSession().setAttribute("defaultdecoder", format);  // remember this choice
-            final GraphDeserializer<? extends Graph> deserializer = (GraphDeserializer<? extends Graph>) appContext.getBean(format);
+            final GraphDeserializer<? extends Graph> deserializer =
+                    (GraphDeserializer<? extends Graph>) appContext.getBean(format);
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
             query = deserializer.apply(queryString);
         } else {
@@ -232,7 +232,6 @@ public class TasksController {
         final DBPopulator pop = (DBPopulator) appContext.getBean(populatorname);
         int taskId = addTask(pop.apply(db));
         return new RedirectView("/tasks");
-
     }
 
 
@@ -258,6 +257,6 @@ public class TasksController {
 
         LogFileProcessor task = new LogFileProcessor(file.getInputStream(), file.getSize(), logProcessingBeans);
         addTask(task);
-        return new RedirectView("/reports");
+        return new RedirectView("/tasks");
     }
 }
