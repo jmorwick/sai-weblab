@@ -22,12 +22,16 @@ public class ReportsController {
     @Autowired
     private ApplicationContext appContext;
 
-    private Map<String, Map<String, Object>> reportModels
+    private Map<Integer, Map<String, Object>> reportModels
             = new ConcurrentHashMap<>();
+
+    public void addReport(Integer id, Map<String, Object> report) {
+        reportModels.put(id, report);
+    }
 
     @GetMapping("/reports")
     public String view(Map<String, Object> model) {
-        model.put("reports", reportModels.keySet());
+        model.put("reportids", reportModels.keySet());
 
 
         return "reports";
