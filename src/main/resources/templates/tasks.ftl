@@ -25,6 +25,7 @@
 
     <#include "tasks/populate.ftl">
     <#include "tasks/retrieval-simple.ftl">
+    <#include "tasks/process-log.ftl">
 
 </div>
 <#include "footer.ftl">

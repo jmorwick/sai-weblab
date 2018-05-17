@@ -14,13 +14,6 @@
         <label>Max Results</label>
         <input class="form-control" type="input" name="max"/>
 
-        <label>Process Results</label>
-        <select multiple name="processors[]">
-        <#list processors as processorname, processortype>
-            <option>${processorname}</option>
-        </#list>
-        </select>
-
         <button type="submit" class="btn btn-primary">Retrieve Graphs</button>
     </div>
 </form>

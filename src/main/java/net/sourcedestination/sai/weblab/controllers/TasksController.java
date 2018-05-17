@@ -2,6 +2,7 @@ package net.sourcedestination.sai.weblab.controllers;
 
 import com.google.common.collect.Sets;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
+import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphProcessor;
 import net.sourcedestination.sai.analysis.LogFileProcessor;
 import net.sourcedestination.sai.db.DBInterface;
@@ -135,12 +136,15 @@ public class TasksController {
         Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
         model.put("populators", populators.keySet());
 
-        Map<String, GraphProcessor> processors = appContext.getBeansOfType(GraphProcessor.class);
-        Map<String, String> processorinfo = processors.entrySet().stream()
+
+        // find log processors
+        Map<String, ExperimentLogProcessorFactory> logProcessors =
+                appContext.getBeansOfType(ExperimentLogProcessorFactory.class);
+        Map<String, String> logProcessorInfo = logProcessors.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> e.getValue().getClass().getSimpleName()));
 
-        model.put("processors", processorinfo);
+        model.put("logprocessors", logProcessorInfo);
 
         Map<String, ClassificationModelGenerator> classifiers =
                 appContext.getBeansOfType(ClassificationModelGenerator.class);
@@ -232,7 +236,7 @@ public class TasksController {
     }
 
 
-    @PostMapping("/tasks/upload-log-file")
+    @PostMapping("/tasks/process-log-file")
     public RedirectView loadReport(@RequestParam("file") MultipartFile file,
                                    @RequestParam(name = "processors[]", required = false)
                                            String[] logProcessingBeanNames)
@@ -243,7 +247,10 @@ public class TasksController {
         if(logProcessingBeanNames != null) {
             logProcessingBeans = new ExperimentLogProcessor[logProcessingBeanNames.length];
             for(int i=0; i<logProcessingBeanNames.length; i++)
-                logProcessingBeans[i] = ((ExperimentLogProcessor) appContext.getBean(logProcessingBeanNames[i]));
+                logProcessingBeans[i] =
+                        ((ExperimentLogProcessorFactory)
+                          appContext.getBean(logProcessingBeanNames[i])
+                        ).get();
 
         } else {
             logProcessingBeans = new ExperimentLogProcessor[0];
