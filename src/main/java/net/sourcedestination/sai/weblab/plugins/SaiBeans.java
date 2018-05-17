@@ -2,6 +2,7 @@ package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.funcles.tuple.Tuple3;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
+import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphMetric;
 import net.sourcedestination.sai.analysis.GraphMetricsProcessor;
 import net.sourcedestination.sai.db.DBInterface;
@@ -41,7 +42,7 @@ public class SaiBeans {
 
     }
 
-    public static Supplier<ExperimentLogProcessor> processorFactory(
+    public static ExperimentLogProcessorFactory graphMetricsProcessorFactory(
             Tuple3<String, GraphMetricsProcessor.AggregationType, GraphMetric>... metrics) {
         return () -> new GraphMetricsProcessor(new DBInterfaces(), metrics);
     }
