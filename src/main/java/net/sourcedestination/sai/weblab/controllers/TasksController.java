@@ -1,21 +1,27 @@
 package net.sourcedestination.sai.weblab.controllers;
 
 import com.google.common.collect.Sets;
+import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
 import net.sourcedestination.sai.analysis.GraphProcessor;
+import net.sourcedestination.sai.analysis.LogFileProcessor;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.learning.ClassificationModelGenerator;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
+import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -208,5 +214,38 @@ public class TasksController {
         });
 
         return new RedirectView("/tasks");
+    }
+
+    @PostMapping(value = "/dbs/populate")
+    public RedirectView populateDB(@RequestParam("dbname") String dbname,
+                                   @RequestParam("populatorname") String populatorname) {
+        final DBInterface db = (DBInterface) appContext.getBean(dbname);
+        final DBPopulator pop = (DBPopulator) appContext.getBean(populatorname);
+        int taskId = addTask(pop.apply(db));
+        return new RedirectView("/tasks");
+
+    }
+
+
+    @PostMapping("/reports/upload-log-file")
+    public RedirectView loadReport(@RequestParam("file") MultipartFile file,
+                                   @RequestParam(name = "processors[]", required = false)
+                                           String[] logProcessingBeanNames)
+            throws IOException {
+
+        // find processing beans
+        final ExperimentLogProcessor[] logProcessingBeans;
+        if(logProcessingBeanNames != null) {
+            logProcessingBeans = new ExperimentLogProcessor[logProcessingBeanNames.length];
+            for(int i=0; i<logProcessingBeanNames.length; i++)
+                logProcessingBeans[i] = ((ExperimentLogProcessor) appContext.getBean(logProcessingBeanNames[i]));
+
+        } else {
+            logProcessingBeans = new ExperimentLogProcessor[0];
+        }
+
+        LogFileProcessor task = new LogFileProcessor(file.getInputStream(), file.getSize(), logProcessingBeans);
+        addTask(task);
+        return new RedirectView("/reports");
     }
 }

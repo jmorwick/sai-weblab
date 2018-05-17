@@ -22,9 +22,6 @@ public class ReportsController {
     @Autowired
     private ApplicationContext appContext;
 
-    @Autowired
-    private TasksController tasksController;
-
     private Map<String, Map<String, Object>> reportModels
             = new ConcurrentHashMap<>();
 
@@ -42,28 +39,6 @@ public class ReportsController {
         model.put("reportid", ""+reportid);
         model.putAll(reportModels.get(reportid));
         return "viewlog"; // TODO: determine how to handle views
-    }
-
-    @PostMapping("/reports/upload-log-file")
-    public RedirectView loadReport(@RequestParam("file") MultipartFile file,
-                                   @RequestParam(name = "processors[]", required = false)
-                                               String[] logProcessingBeanNames)
-            throws IOException {
-
-        // find processing beans
-        final ExperimentLogProcessor[] logProcessingBeans;
-        if(logProcessingBeanNames != null) {
-            logProcessingBeans = new ExperimentLogProcessor[logProcessingBeanNames.length];
-            for(int i=0; i<logProcessingBeanNames.length; i++)
-                logProcessingBeans[i] = ((ExperimentLogProcessor) appContext.getBean(logProcessingBeanNames[i]));
-
-        } else {
-            logProcessingBeans = new ExperimentLogProcessor[0];
-        }
-
-        LogFileProcessor task = new LogFileProcessor(file.getInputStream(), file.getSize(), logProcessingBeans);
-        tasksController.addTask(task);
-        return new RedirectView("/reports");
     }
 
 }
