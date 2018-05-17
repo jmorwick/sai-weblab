@@ -9,7 +9,6 @@ import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.graph.GraphSerializer;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
-import net.sourcedestination.sai.task.DBPopulator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
