@@ -1,14 +1,14 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.funcles.tuple.Tuple3;
+import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
+import net.sourcedestination.sai.analysis.GraphMetric;
+import net.sourcedestination.sai.analysis.GraphMetricsProcessor;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Feature;
 import net.sourcedestination.sai.learning.ClassificationModel;
 import net.sourcedestination.sai.learning.ClassificationModelGenerator;
-import net.sourcedestination.sai.reporting.metrics.graph.GraphMetric;
 import net.sourcedestination.sai.retrieval.FeatureIndexBasedRetriever;
-import net.sourcedestination.sai.weblab.reporting.ExperimentLogProcessor;
-import net.sourcedestination.sai.weblab.reporting.GraphMetricsProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 

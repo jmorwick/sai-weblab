@@ -1,10 +1,10 @@
 package net.sourcedestination.sai.weblab.controllers;
 
+import net.sourcedestination.sai.analysis.GraphProcessor;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.graph.Graph;
 import net.sourcedestination.sai.graph.GraphDeserializer;
 import net.sourcedestination.sai.learning.ClassificationModelGenerator;
-import net.sourcedestination.sai.reporting.GraphProcessor;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.Task;
 import net.sourcedestination.sai.weblab.TaskManager;
