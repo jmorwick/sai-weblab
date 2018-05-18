@@ -71,14 +71,6 @@ public class DBInterfaceController {
             Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
             Set<String> decoderNames = decoders.keySet();
             model.put("decoders", decoderNames);
-
-
-            // find retrievers
-            Map<String, GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
-            model.put("retrievers", retrievers.keySet());
-
-
-            model.put("defaultencoder", getSession().getAttribute("defaultencoder"));
             model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
         }
         return "viewdb";

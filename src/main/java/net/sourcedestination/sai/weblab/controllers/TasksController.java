@@ -136,12 +136,19 @@ public class TasksController {
 
         model.put("dbs", dbsinfo);
 
-
+        // find decoders
+        Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
+        Set<String> decoderNames = decoders.keySet();
+        model.put("decoders", decoderNames);
+        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
 
         // find populators
         Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
         model.put("populators", populators.keySet());
 
+        // find retrievers
+        Map<String, GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
+        model.put("retrievers", retrievers.keySet());
 
         // find log processors
         Map<String, ExperimentLogProcessorFactory> logProcessors =
