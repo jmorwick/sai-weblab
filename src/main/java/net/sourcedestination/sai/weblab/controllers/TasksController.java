@@ -12,6 +12,7 @@ import net.sourcedestination.sai.learning.ClassificationModelGenerator;
 import net.sourcedestination.sai.retrieval.GraphRetriever;
 import net.sourcedestination.sai.task.DBPopulator;
 import net.sourcedestination.sai.task.Task;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -32,6 +33,8 @@ import static net.sourcedestination.sai.weblab.controllers.DBInterfaceController
 
 @Controller
 public class TasksController {
+
+    private static Logger logger = Logger.getLogger(TasksController.class);
 
     @Autowired
     private ApplicationContext appContext;
@@ -63,7 +66,12 @@ public class TasksController {
                         taskTimes.put(id, (System.nanoTime() - startTime) / 1000000);
                     }
                     return result;
-                }).thenAccept(callback);
+                }).thenAccept(callback)
+                .exceptionally(e -> {
+                    t.cancel();
+                    logger.error("Error executing task: ", e);
+                    return null;
+                });
         taskFutures.put(nextTaskId, f);
         return nextTaskId++;
     }
