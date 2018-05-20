@@ -211,8 +211,8 @@ public class TasksController {
                 queryString != null && queryString.length() > 0) {
             // a format and query were specified
             getSession().setAttribute("defaultdecoder", format);  // remember this choice
-            final GraphDeserializer<? extends Graph> deserializer =
-                    (GraphDeserializer<? extends Graph>) appContext.getBean(format);
+            final GraphDeserializer deserializer =
+                    (GraphDeserializer) appContext.getBean(format);
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
             query = deserializer.apply(queryString);
         } else {

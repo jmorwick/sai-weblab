@@ -18,9 +18,6 @@ public class ReportsController {
     private final Map<Integer, Map<String, ? extends Object>> reportModels = new HashMap<>();
 
     public int addReport(Map<String, ? extends Object> report) {
-
-        // TODO: clean up any JSON objects in the report
-
         synchronized (reportModels) {
             reportModels.put(reportModels.size()+1, report);
             return reportModels.size();
@@ -43,6 +40,9 @@ public class ReportsController {
         synchronized (reportModels) {
             model.putAll(reportModels.get(reportid));
         }
+
+        // TODO: convert model to JSON and add JSON string to the model
+
         return "viewreport"; // TODO: determine how to handle views
     }
 

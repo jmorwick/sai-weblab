@@ -81,7 +81,7 @@ public class DBInterfaceController {
                                     @RequestParam("format") String format,
                                     @RequestParam("encoding") String encoding) {
         final DBInterface db = (DBInterface) appContext.getBean(dbname);
-        final GraphDeserializer<? extends Graph> encoder =
+        final GraphDeserializer encoder =
                 (GraphDeserializer) appContext.getBean(format);
         final Graph g = encoder.apply(encoding);
         final int id = db.addGraph(g);
