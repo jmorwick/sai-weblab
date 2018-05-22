@@ -1,11 +1,6 @@
 <form action="/tasks/retrieval" method="post" ID=simple-retrieval-form">
-    <legend>Structural Retreival</legend>
+    <legend>Retreival Experiment</legend>
     <div class="form-group">
-        <select class="form-control" name="dbname">
-        <#list dbs as dbname, dbtype>
-            <option>${dbname}</option>
-        </#list>
-        </select>
 
         <label>Retriever</label>
         <select class="form-control" name="retriever">

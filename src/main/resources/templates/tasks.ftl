@@ -24,8 +24,7 @@
     <legend>Launch Task:</legend>
 
     <#include "tasks/populate.ftl">
-    <#include "tasks/retrieval-simple.ftl">
-    <#include "tasks/retrieval-structural.ftl">
+    <#include "tasks/retrieval.ftl">
     <#include "tasks/process-log.ftl">
 
 </div>

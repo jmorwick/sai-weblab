@@ -6,12 +6,12 @@ import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphProcessor;
 import net.sourcedestination.sai.analysis.LogFileProcessor;
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.graph.Graph;
-import net.sourcedestination.sai.graph.GraphDeserializer;
-import net.sourcedestination.sai.learning.ClassificationModelGenerator;
-import net.sourcedestination.sai.retrieval.GraphRetriever;
-import net.sourcedestination.sai.task.DBPopulator;
-import net.sourcedestination.sai.task.Task;
+import net.sourcedestination.sai.db.graph.Graph;
+import net.sourcedestination.sai.db.graph.GraphDeserializer;
+import net.sourcedestination.sai.experiment.learning.ClassificationModelGenerator;
+import net.sourcedestination.sai.db.DBPopulator;
+import net.sourcedestination.sai.experiment.retrieval.Retriever;
+import net.sourcedestination.sai.util.Task;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -155,7 +155,7 @@ public class TasksController {
         model.put("populators", populators.keySet());
 
         // find retrievers
-        Map<String, GraphRetriever> retrievers = appContext.getBeansOfType(GraphRetriever.class);
+        Map<String, Retriever> retrievers = appContext.getBeansOfType(Retriever.class);
         model.put("retrievers", retrievers.keySet());
 
         // find log processors
@@ -183,16 +183,14 @@ public class TasksController {
     }
 
     @PostMapping(value = "/tasks/retrieval")
-    public RedirectView simpleRetrieval(@RequestParam("dbname") String dbname,
-                                        @RequestParam("retriever") String retrieverName,
+    public RedirectView simpleRetrieval(@RequestParam("retriever") String retrieverName,
                                         @RequestParam("query") String queryString,
                                         @RequestParam("format") String format,
                                         @RequestParam("skip") int skipResults,
                                         @RequestParam("max") int maxResults,
                                         @RequestParam(name = "processors[]", required = false)
                                                     String[] graphProcessingBeanNames) {
-        final DBInterface db = (DBInterface) appContext.getBean(dbname);
-        final GraphRetriever retriever = (GraphRetriever) appContext.getBean(retrieverName);
+        final Retriever retriever = (Retriever) appContext.getBean(retrieverName);
 
         // find graph processing beans
         final GraphProcessor[] graphProcessingBeans;
@@ -222,12 +220,11 @@ public class TasksController {
         addTask(new Task() {
             private AtomicInteger progress = new AtomicInteger(0);
             public Object get() {
-                retriever.retrieve(db,query)
+                retriever.retrieve(query)
                         .skip(skipResults)
                         .limit(maxResults)
                         .forEach(gid -> {
                             progress.incrementAndGet();
-                            GraphRetriever.logger.info("retrieved Graph ID #"+gid+" from "+dbname);
                         });
                 progress.set(maxResults);
                 return null;

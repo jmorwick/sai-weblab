@@ -5,10 +5,9 @@ import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphMetric;
 import net.sourcedestination.sai.analysis.GraphMetricsProcessor;
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.graph.Feature;
-import net.sourcedestination.sai.learning.ClassificationModel;
-import net.sourcedestination.sai.learning.ClassificationModelGenerator;
-import net.sourcedestination.sai.retrieval.FeatureIndexBasedRetriever;
+import net.sourcedestination.sai.db.graph.Feature;
+import net.sourcedestination.sai.experiment.learning.ClassificationModel;
+import net.sourcedestination.sai.experiment.learning.ClassificationModelGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -35,10 +34,6 @@ public class SaiBeans implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext ac) {
         appContext = ac;
-    }
-
-    public FeatureIndexBasedRetriever getRetreiveByBasicFeatureIndexCount() {
-        return FeatureIndexBasedRetriever::retreiveByBasicFeatureIndexCount;
     }
 
     public ClassificationModel getCheatingClassifier() {
