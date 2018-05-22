@@ -15,15 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-import org.apache.log4j.Logger;
+
 
 import javax.servlet.http.HttpSession;
 
 @Controller
 public class DBInterfaceController {
-
-    private static Logger logger = Logger.getLogger(DBInterfaceController.class);
-
+    
     @Autowired
     private ApplicationContext appContext;
 
@@ -93,8 +91,6 @@ public class DBInterfaceController {
                             @PathVariable("dbname") String dbname,
                             @RequestParam("id") int id,
                             @RequestParam("format") String format) {
-        logger.info("User initiated retrieval of graph #"+id +
-            " to " + format + " from " + dbname);
 
         DBInterface db = (DBInterface) appContext.getBean(dbname);
         Graph g = db.retrieveGraph(id);
