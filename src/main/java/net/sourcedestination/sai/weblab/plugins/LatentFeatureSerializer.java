@@ -1,8 +1,8 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.sai.analysis.GraphMetric;
-import net.sourcedestination.sai.graph.Graph;
-import net.sourcedestination.sai.graph.GraphSerializer;
+import net.sourcedestination.sai.db.graph.Graph;
+import net.sourcedestination.sai.db.graph.GraphSerializer;
 
 import java.util.Arrays;
 import java.util.List;

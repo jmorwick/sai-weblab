@@ -5,10 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.graph.Graph;
-import net.sourcedestination.sai.graph.GraphDeserializer;
-import net.sourcedestination.sai.graph.GraphSerializer;
-import net.sourcedestination.sai.retrieval.GraphRetriever;
+import net.sourcedestination.sai.db.graph.Graph;
+import net.sourcedestination.sai.db.graph.GraphDeserializer;
+import net.sourcedestination.sai.db.graph.GraphSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;

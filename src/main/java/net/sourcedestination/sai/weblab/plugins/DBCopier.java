@@ -1,8 +1,8 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.graph.Graph;
-import net.sourcedestination.sai.task.DBPopulator;
+import net.sourcedestination.sai.db.graph.Graph;
+import net.sourcedestination.sai.db.DBPopulator;
 
 import java.util.stream.Stream;
 
