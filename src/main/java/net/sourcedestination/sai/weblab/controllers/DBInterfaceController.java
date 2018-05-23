@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 public class DBInterfaceController {
-    
+
     @Autowired
     private ApplicationContext appContext;
 
