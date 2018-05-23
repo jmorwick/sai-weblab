@@ -32,7 +32,8 @@
             </select>
             <label>Graph ID</label>
             <input class="form-control" type="text" name="id"/>
-            <button type="submit" class="btn btn-primary">View</button>
+            <button type="submit" class="btn btn-primary"
+                onclick="this.form.action+=('/'+form.elements.namedItem('id').value)">View</button>
         </div>
     </form>
 

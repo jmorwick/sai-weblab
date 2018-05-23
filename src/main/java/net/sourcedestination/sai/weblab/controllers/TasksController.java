@@ -29,8 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static net.sourcedestination.sai.weblab.controllers.DBInterfaceController.getSession;
-
 @Controller
 public class TasksController {
 
@@ -41,6 +39,9 @@ public class TasksController {
 
     @Autowired
     private ReportsController reportsController;
+
+    @Autowired
+    private DBInterfaceController dbInterfaceController;
 
     private int nextTaskId = 1;
     private Map<Integer,Task> trackedTasks = new HashMap<>();
@@ -148,7 +149,7 @@ public class TasksController {
         Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
         Set<String> decoderNames = decoders.keySet();
         model.put("decoders", decoderNames);
-        model.put("defaultdecoder", getSession().getAttribute("defaultdecoder"));
+        model.put("defaultdecoder", dbInterfaceController.getSession().getAttribute("defaultdecoder"));
 
         // find populators
         Map<String, DBPopulator> populators = appContext.getBeansOfType(DBPopulator.class);
@@ -208,7 +209,7 @@ public class TasksController {
         if (format != null && format.length() > 0 && !format.equals("none") &&
                 queryString != null && queryString.length() > 0) {
             // a format and query were specified
-            getSession().setAttribute("defaultdecoder", format);  // remember this choice
+            dbInterfaceController.getSession().setAttribute("defaultdecoder", format);  // remember this choice
             final GraphDeserializer deserializer =
                     (GraphDeserializer) appContext.getBean(format);
             // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this

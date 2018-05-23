@@ -26,7 +26,8 @@ public class RetrievedGraphsList implements ExperimentLogProcessor {
     @Override
     public Map<String,Object> get() {
         Map<String,Object> model = new HashMap<>();
-        model.put("retrieved-graphs", retrievedGraphIds);
+        model.put("retrievedgraphs", retrievedGraphIds);
+        model.put("view", "retrieval-report");
         return model;
     }
 

@@ -1,5 +1,6 @@
 package net.sourcedestination.sai.weblab.controllers;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,8 @@ import java.util.Map;
 
 @Controller
 public class ReportsController {
+
+    private static Logger logger = Logger.getLogger(ReportsController.class);
 
     @Autowired
     private ApplicationContext appContext;
@@ -37,11 +40,17 @@ public class ReportsController {
     public String viewTask(Map<String, Object> model,
                        @PathVariable("reportid") int reportid) {
         model.put("reportid", ""+reportid);
+
         synchronized (reportModels) {
             model.putAll(reportModels.get(reportid));
         }
 
         // TODO: convert model to JSON and add JSON string to the model
+
+
+        if(model.containsKey("view")) {
+            return model.get("view").toString();
+        }
 
         return "viewreport"; // TODO: determine how to handle views
     }

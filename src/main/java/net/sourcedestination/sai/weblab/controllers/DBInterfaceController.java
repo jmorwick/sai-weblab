@@ -26,15 +26,21 @@ public class DBInterfaceController {
     private ApplicationContext appContext;
 
 
-    public static HttpSession getSession() {
+    public HttpSession getSession() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(true);
-        if(session.getAttribute("defaultencoder") == null)
-            session.setAttribute("defaultencoder", "none");
-        if(session.getAttribute("defaultdecoder") == null)
-            session.setAttribute("defaultdecoder", "none");
-        if(session.getAttribute("defaultdb") == null)
-            session.setAttribute("defaultdb", "none");
+        if(session.getAttribute("defaultencoder") == null) {
+            Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
+            session.setAttribute("defaultencoder", encoders.keySet().stream().findFirst().orElse("none"));
+        }
+        if(session.getAttribute("defaultdecoder") == null){
+            Map<String, GraphDeserializer> decoders = appContext.getBeansOfType(GraphDeserializer.class);
+            session.setAttribute("defaultdecoder", decoders.keySet().stream().findFirst().orElse("none"));
+        }
+        if(session.getAttribute("defaultdb") == null) {
+            Map<String, DBInterface> dbs = appContext.getBeansOfType(DBInterface.class);
+            session.setAttribute("defaultdb", dbs.keySet().stream().findFirst().orElse("none"));
+        }
         return session;
     }
 
@@ -86,17 +92,18 @@ public class DBInterfaceController {
         return new RedirectView("/dbs");
     }
 
-    @GetMapping({"/dbs/retrieve/{dbname}"})
+    @GetMapping({"/dbs/retrieve/{dbname}/{id}"})
     public String viewGraph(Map<String, Object> model,
                             @PathVariable("dbname") String dbname,
-                            @RequestParam("id") int id,
-                            @RequestParam("format") String format) {
+                            @PathVariable("id") int id,
+                            @RequestParam(name="format",required=false) String format) {
 
         DBInterface db = (DBInterface) appContext.getBean(dbname);
         Graph g = db.retrieveGraph(id);
         Map<String, GraphSerializer> encoders = appContext.getBeansOfType(GraphSerializer.class);
         Set<String> encoderNames = encoders.keySet();
-
+        if(format == null)
+            format = getSession().getAttribute("defaultencoder").toString();
         model.put("id", id);
         model.put("encoders", encoderNames);
         model.put("encoder", format);
