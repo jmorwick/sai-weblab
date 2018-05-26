@@ -192,11 +192,11 @@ public class TasksController {
                                         @RequestParam("query") String queryString,
                                         @RequestParam(name="generator", required = false) String generator,
                                         @RequestParam(name="format", required = false) String format,
-                                        @RequestParam("skip") int skipResults,
-                                        @RequestParam("max") int maxResults,
+                                        @RequestParam(name="skip",required = false) Long skipResults,
+                                        @RequestParam(name="max",required = false) Long maxResults,
                                         @RequestParam(name = "processors[]", required = false)
                                                     String[] graphProcessingBeanNames) {
-        final Retriever retriever = (Retriever) appContext.getBean(retrieverName);
+        Retriever retriever = (Retriever) appContext.getBean(retrieverName);
 
         // find graph processing beans
         final GraphProcessor[] graphProcessingBeans;
@@ -228,7 +228,12 @@ public class TasksController {
             gen = (QueryGenerator) () -> Stream.of("unused query");
         }
 
-        addTask(Retriever.retrievalExperiment(retriever, gen, skipResults, maxResults));
+        if(skipResults != null)
+            retriever = Retriever.skipResults(retriever, skipResults);
+        if(maxResults != null)
+            retriever = Retriever.limitResults(retriever, maxResults);
+
+        addTask(Retriever.retrievalExperiment(retriever, gen));
 
         return new RedirectView("/tasks");
     }

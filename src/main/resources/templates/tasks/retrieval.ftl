@@ -11,9 +11,18 @@
             format.hidden = true;
         }
     }
+
+    function submitRetrievalForm(form) {
+        if(skip.val() != parseInt(skip.val(),10))
+            form.removeChild(skip);
+
+        max = form.elements['max'];
+        if(max.val() != parseInt(max.val(),10))
+            form.removeChild(max);
+    }
 </script>
 
-<form action="/tasks/retrieval" method="post" ID="simple-retrieval-form">
+<form action="/tasks/retrieval" method="post" ID="simple-retrieval-form" onsubmit="submitRetrievalForm(this)">
     <legend>Retreival Experiment</legend>
     <div class="form-group">
 
