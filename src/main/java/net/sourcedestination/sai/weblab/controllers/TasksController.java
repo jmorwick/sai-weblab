@@ -213,15 +213,19 @@ public class TasksController {
         final QueryGenerator gen;
         if(generator != null && generator.length() > 0 &&
                   !generator.equals("manual") && !generator.equals("none")){
+            logger.info("using query generator " + generator + " with retriever " + retrieverName);
             gen = (QueryGenerator)appContext.getBean(generator);
-        } else if (format != null && format.length() > 0 && !format.equals("none")) {
+        } else if (generator.equals("manual")) {
+            logger.info("decoding graph query w/ hash " + queryString.hashCode() + " using decoder " + format
+             + " for retriever " + retrieverName);
             // a format and query were specified
             dbInterfaceController.getSession().setAttribute("defaultdecoder", format);  // remember this choice
             final GraphDeserializer deserializer =
                     (GraphDeserializer) appContext.getBean(format);
             gen = QueryGenerator.of(deserializer.apply(queryString));
-        } else {
-            gen = (QueryGenerator) () -> Stream.of(null);
+        } else { // no query used -- retrieval results are not dependent on the query
+            logger.info("issuing meaningless query to retriever " + retrieverName );
+            gen = (QueryGenerator) () -> Stream.of("unused query");
         }
 
         addTask(Retriever.retrievalExperiment(retriever, gen, skipResults, maxResults));
