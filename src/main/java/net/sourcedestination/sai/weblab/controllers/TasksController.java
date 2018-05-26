@@ -6,10 +6,10 @@ import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 import net.sourcedestination.sai.analysis.GraphProcessor;
 import net.sourcedestination.sai.analysis.LogFileProcessor;
 import net.sourcedestination.sai.db.DBInterface;
-import net.sourcedestination.sai.db.graph.Graph;
 import net.sourcedestination.sai.db.graph.GraphDeserializer;
 import net.sourcedestination.sai.experiment.learning.ClassificationModelGenerator;
 import net.sourcedestination.sai.db.DBPopulator;
+import net.sourcedestination.sai.experiment.retrieval.QueryGenerator;
 import net.sourcedestination.sai.experiment.retrieval.Retriever;
 import net.sourcedestination.sai.util.Task;
 import org.apache.log4j.Logger;
@@ -25,9 +25,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class TasksController {
@@ -159,6 +159,10 @@ public class TasksController {
         Map<String, Retriever> retrievers = appContext.getBeansOfType(Retriever.class);
         model.put("retrievers", retrievers.keySet());
 
+        // find query generators
+        Map<String, QueryGenerator> generators = appContext.getBeansOfType(QueryGenerator.class);
+        model.put("generators", generators.keySet());
+
         // find log processors
         Map<String, ExperimentLogProcessorFactory> logProcessors =
                 appContext.getBeansOfType(ExperimentLogProcessorFactory.class);
@@ -186,7 +190,8 @@ public class TasksController {
     @PostMapping(value = "/tasks/retrieval")
     public RedirectView simpleRetrieval(@RequestParam("retriever") String retrieverName,
                                         @RequestParam("query") String queryString,
-                                        @RequestParam("format") String format,
+                                        @RequestParam(name="generator", required = false) String generator,
+                                        @RequestParam(name="format", required = false) String format,
                                         @RequestParam("skip") int skipResults,
                                         @RequestParam("max") int maxResults,
                                         @RequestParam(name = "processors[]", required = false)
@@ -205,42 +210,21 @@ public class TasksController {
         }
 
 
-        Graph query;
-        if (format != null && format.length() > 0 && !format.equals("none") &&
-                queryString != null && queryString.length() > 0) {
+        final QueryGenerator gen;
+        if(generator != null && generator.length() > 0 &&
+                  !generator.equals("manual") && !generator.equals("none")){
+            gen = (QueryGenerator)appContext.getBean(generator);
+        } else if (format != null && format.length() > 0 && !format.equals("none")) {
             // a format and query were specified
             dbInterfaceController.getSession().setAttribute("defaultdecoder", format);  // remember this choice
             final GraphDeserializer deserializer =
                     (GraphDeserializer) appContext.getBean(format);
-            // TODO: compiler won't accept GraphDeserializer here w/o type arg... not immediately sure why, but need to fix def of GraphSerializer class to fix this
-            query = deserializer.apply(queryString);
+            gen = QueryGenerator.of(deserializer.apply(queryString));
         } else {
-            query = null;
+            gen = (QueryGenerator) () -> Stream.of(null);
         }
 
-        addTask(new Task() {
-            private AtomicInteger progress = new AtomicInteger(0);
-            public Object get() {
-                retriever.retrieve(query)
-                        .skip(skipResults)
-                        .limit(maxResults)
-                        .forEach(gid -> {
-                            progress.incrementAndGet();
-                        });
-                progress.set(maxResults);
-                return null;
-            }
-
-            @Override
-            public String getTaskName() { return retriever.getClass().getName(); }
-
-            @Override
-            public int getProgressUnits() { return progress.get(); }
-
-            @Override
-            public int getTotalProgressUnits() { return maxResults; }
-
-        });
+        addTask(Retriever.retrievalExperiment(retriever, gen, skipResults, maxResults));
 
         return new RedirectView("/tasks");
     }

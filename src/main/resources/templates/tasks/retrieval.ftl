@@ -1,4 +1,19 @@
-<form action="/tasks/retrieval" method="post" ID=simple-retrieval-form">
+<script>
+    function generatorSwitch(form) {
+        gen = form.elements['generator'];
+        query = form.elements['query'];
+        format = form.elements['format'];
+        if(gen.value == 'manual') {
+            query.hidden = false;
+            format.hidden = false;
+        } else  {
+            query.hidden = true;
+            format.hidden = true;
+        }
+    }
+</script>
+
+<form action="/tasks/retrieval" method="post" ID="simple-retrieval-form">
     <legend>Retreival Experiment</legend>
     <div class="form-group">
 
@@ -9,6 +24,14 @@
         </#list>
         </select>
 
+        <label>Query Generator</label>
+        <select class="form-control" name="generator" onchange="generatorSwitch(this.form)">
+            <option>manual</option>
+            <option>none</option>
+        <#list generators as generator>
+            <option>${generator}</option>
+        </#list>
+        </select>
         <label>Graph Data</label>
         <textarea class="form-control" name="query"></textarea>
 
