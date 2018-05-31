@@ -2,6 +2,11 @@
 <div class="container">
     <h3>DBInterface: ${dbname}</h3>
 
+    <ul>
+    <#list metrics as mname, mvalue>
+        <li>${mname}: ${mvalue}</li>
+    </#list>
+    </ul>
 
     <form action="/dbs/retrieve/${dbname}" method="get">
         <div class="form-group">

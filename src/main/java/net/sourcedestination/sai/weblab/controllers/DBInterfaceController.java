@@ -1,9 +1,12 @@
 package net.sourcedestination.sai.weblab.controllers;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.sourcedestination.sai.analysis.GraphMetric;
+import net.sourcedestination.sai.analysis.metrics.types.GraphType;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.db.graph.Graph;
 import net.sourcedestination.sai.db.graph.GraphDeserializer;
@@ -104,6 +107,18 @@ public class DBInterfaceController {
         Set<String> encoderNames = encoders.keySet();
         if(format == null)
             format = getSession().getAttribute("defaultencoder").toString();
+
+
+        Map<String, GraphMetric> metrics = appContext.getBeansOfType(GraphMetric.class);
+        Map<String,String> metricValues = new HashMap<>();
+        for(String name : metrics.keySet()) {
+            GraphMetric m = metrics.get(name);
+            if(m instanceof GraphType) {
+                GraphType t = (GraphType)m;
+                metricValues.put(name, ""+t.test(g));
+            } else metricValues.put(name, ""+m.apply(g));
+        }
+        model.put("metrics", metricValues);
         model.put("id", id);
         model.put("encoders", encoderNames);
         model.put("encoder", format);
