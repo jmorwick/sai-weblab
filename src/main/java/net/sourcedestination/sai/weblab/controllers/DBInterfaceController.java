@@ -130,7 +130,7 @@ public class DBInterfaceController {
                 db.getGraphIDStream()
                 .map(gid -> db.retrieveGraph(gid))
                 .map(graph -> encoders.get(format).apply(graph))
-                .reduce((x,y) -> x+"\n"+y)
+                .reduce((x,y) -> x+",\n"+y)
                 .get()
         );
         model.put("dbname", dbname);
