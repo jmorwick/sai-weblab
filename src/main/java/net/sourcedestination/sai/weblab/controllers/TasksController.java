@@ -12,7 +12,6 @@ import net.sourcedestination.sai.db.DBPopulator;
 import net.sourcedestination.sai.experiment.retrieval.QueryGenerator;
 import net.sourcedestination.sai.experiment.retrieval.Retriever;
 import net.sourcedestination.sai.util.Task;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -26,13 +25,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Controller
 public class TasksController {
 
-    private static Logger logger = Logger.getLogger(TasksController.class);
+    private static Logger logger = Logger.getLogger(TasksController.class.getCanonicalName());
 
     @Autowired
     private ApplicationContext appContext;
@@ -70,7 +70,7 @@ public class TasksController {
                 }).thenAccept(callback)
                 .exceptionally(e -> {
                     t.cancel();
-                    logger.error("Error executing task: ", e);
+                    logger.throwing(getClass().getCanonicalName(), "Error executing task: ", e);
                     return null;
                 });
         taskFutures.put(nextTaskId, f);
@@ -246,7 +246,6 @@ public class TasksController {
         int taskId = addTask(pop.apply(db));
         return new RedirectView("/tasks");
     }
-
 
     @PostMapping("/tasks/process-log-file")
     public RedirectView loadReport(@RequestParam("file") MultipartFile file,

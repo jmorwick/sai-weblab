@@ -11,6 +11,13 @@
         </#list>
     </ul>
 
+    <legend>Launch Task:</legend>
+
+    <#include "tasks/populate.ftl">
+    <#include "tasks/retrieval.ftl">
+    <#include "tasks/process-log.ftl">
+
+
     <legend>Inactive Tasks:</legend>
     <ul>
         <#list inactivetasks as taskid, taskname>
@@ -19,13 +26,6 @@
         </div>
         </#list>
     </ul>
-    
-
-    <legend>Launch Task:</legend>
-
-    <#include "tasks/populate.ftl">
-    <#include "tasks/retrieval.ftl">
-    <#include "tasks/process-log.ftl">
 
 </div>
 <#include "footer.ftl">
