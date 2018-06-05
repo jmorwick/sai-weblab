@@ -3,6 +3,7 @@ package net.sourcedestination.sai.weblab.controllers;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import com.google.common.collect.Sets;
 import net.sourcedestination.sai.reporting.logging.InteractiveAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,9 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class ReportsController {
@@ -27,17 +31,14 @@ public class ReportsController {
     private ApplicationContext appContext;
 
     private final Map<Integer, Map<String, ? extends Object>> reportModels = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> logs = new ConcurrentHashMap<>();
+    private final Map<String, Supplier<Stream<String>>> logs = new ConcurrentHashMap<>();
+
+    public Set<String> getLogNames() { return Sets.newHashSet(logs.keySet()); }
+
+    public Stream<String> getLog(String name) { return logs.get(name).get(); }
 
     public int addReport(Map<String, ? extends Object> report) {
         synchronized (reportModels) {
-            reportModels.put(reportModels.size()+1, report);
-            return reportModels.size();
-        }
-    }
-
-    public int addLog(Map<String, ? extends Object> report) {
-        synchronized (logs) {
             reportModels.put(reportModels.size()+1, report);
             return reportModels.size();
         }
@@ -118,7 +119,7 @@ public class ReportsController {
         model.put("logid", ""+logId);
 
         synchronized (logs) {
-            model.put("log",logs.get(logId));
+            model.put("log",logs.get(logId).get().collect(Collectors.toList()));
         }
 
         if(model.containsKey("view")) {
