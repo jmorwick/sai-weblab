@@ -8,6 +8,7 @@ import net.sourcedestination.sai.reporting.logging.InteractiveAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,8 @@ public class ReportsController {
     @Autowired
     private ApplicationContext appContext;
 
+    private boolean autolog;
+
     private final Map<Integer, Map<String, ? extends Object>> reportModels = new ConcurrentHashMap<>();
     private final Map<String, Supplier<Stream<String>>> logs = new ConcurrentHashMap<>();
 
@@ -37,11 +40,17 @@ public class ReportsController {
 
     public Stream<String> getLog(String name) { return logs.get(name).get(); }
 
-    public int addReport(Map<String, ? extends Object> report) {
+    public synchronized int addReport(Map<String, ? extends Object> report) {
+        logger.info("adding report: " + reportModels.size()+1);
         synchronized (reportModels) {
             reportModels.put(reportModels.size()+1, report);
             return reportModels.size();
         }
+    }
+
+    public void addLog(String name, Supplier<Stream<String>> log) {
+        logger.info("adding log: " + name);
+        logs.put(name, log);
     }
 
     @GetMapping("/reports")
@@ -64,6 +73,7 @@ public class ReportsController {
 
         }
 
+        model.put("autolog", autolog);
         model.put("activeappenders", activeAppenders);
         model.put("inactiveappenders", inactiveAppenders);
 
@@ -87,7 +97,7 @@ public class ReportsController {
         LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
         InteractiveAppender l = (InteractiveAppender)context.getLogger("weblab-logger").getAppender(appenderName);
         if(l.isListening()) {
-            logs.put((new Date().toString()), l.stopListening());
+            addLog((new Date().toString()), l.stopListening());
         }
         return new RedirectView("/reports");
     }
@@ -117,10 +127,7 @@ public class ReportsController {
     public String viewTask(Map<String, Object> model,
                            @PathVariable("logid") String logId) {
         model.put("logid", ""+logId);
-
-        synchronized (logs) {
-            model.put("log",logs.get(logId).get().collect(Collectors.toList()));
-        }
+        model.put("log", logs.get(logId).get().collect(Collectors.toList()));
 
         if(model.containsKey("view")) {
             return model.get("view").toString();
@@ -129,5 +136,8 @@ public class ReportsController {
         return "viewlog";
     }
 
+    private void setAutolog(boolean autolog) {
+        this.autolog = autolog;
+    }
 
 }

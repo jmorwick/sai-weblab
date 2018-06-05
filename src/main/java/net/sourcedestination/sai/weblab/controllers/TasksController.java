@@ -1,5 +1,8 @@
 package net.sourcedestination.sai.weblab.controllers;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import com.google.common.collect.Sets;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
 import net.sourcedestination.sai.analysis.LogProcessingTask;
@@ -9,7 +12,9 @@ import net.sourcedestination.sai.experiment.learning.ClassificationModelGenerato
 import net.sourcedestination.sai.db.DBPopulator;
 import net.sourcedestination.sai.experiment.retrieval.QueryGenerator;
 import net.sourcedestination.sai.experiment.retrieval.Retriever;
+import net.sourcedestination.sai.reporting.logging.InteractiveAppender;
 import net.sourcedestination.sai.util.Task;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +49,8 @@ public class TasksController {
     @Autowired
     private DBInterfaceController dbInterfaceController;
 
+    private boolean autolog = true;
+
     private int nextTaskId = 1;
     private Map<Integer,Task> trackedTasks = new HashMap<>();
     private Map<Integer,CompletableFuture> taskFutures = new HashMap<>();
@@ -55,12 +62,40 @@ public class TasksController {
         return addTask(t, x -> {});
     }
 
+
+    private synchronized void startLogging() {
+
+        LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
+        Iterator<Appender<ILoggingEvent>> i = context.getLogger("weblab-logger").iteratorForAppenders();
+
+        for(InteractiveAppender a = (InteractiveAppender)i.next();
+            a != null;
+            a = i.hasNext() ? (InteractiveAppender)i.next() : null) {
+            a.startListening();
+        }
+    }
+
+    private synchronized void stopLogging(Task t) {
+        LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
+        Iterator<Appender<ILoggingEvent>> i = context.getLogger("weblab-logger").iteratorForAppenders();
+
+        for(InteractiveAppender a = (InteractiveAppender)i.next();
+            a != null;
+            a = i.hasNext() ? (InteractiveAppender)i.next() : null) {
+            reportsController.addLog(t.getTaskName(), a.stopListening());
+        }
+    }
+
     public synchronized <T> int addTask(Task<T> t, Consumer<T> callback) {
         final int id = nextTaskId;
         final TasksController self = this;
         startTimes.put(id, new Date());
         trackedTasks.put(id, t);
         long startTime = System.nanoTime();
+        logger.info("starting task :" + t.getTaskName() + " with autologging set to " + autolog);
+        if(autolog)
+            startLogging();
+
         CompletableFuture f = CompletableFuture.supplyAsync(t)
                 .thenApply(result -> { // record the result here when finished
                     synchronized(self) {
@@ -69,9 +104,15 @@ public class TasksController {
                     }
                     return result;
                 }).thenAccept(callback)
+                .thenRun(() -> {
+                    if(autolog)
+                        stopLogging(t);
+                })
                 .exceptionally(e -> {
                     t.cancel();
                     logger.throwing(getClass().getCanonicalName(), "Error executing task: ", e);
+                    if(autolog)
+                        stopLogging(t);
                     return null;
                 });
         taskFutures.put(nextTaskId, f);
@@ -268,4 +309,10 @@ public class TasksController {
         });
         return new RedirectView("/tasks");
     }
+
+    private void setAutolog(boolean autolog) {
+        this.autolog = autolog;
+    }
+
+
 }
