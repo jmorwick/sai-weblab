@@ -2,9 +2,7 @@ package net.sourcedestination.sai.weblab.controllers;
 
 import com.google.common.collect.Sets;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
-import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
-import net.sourcedestination.sai.analysis.GraphProcessor;
-import net.sourcedestination.sai.analysis.LogFileProcessor;
+import net.sourcedestination.sai.analysis.LogProcessingTask;
 import net.sourcedestination.sai.db.DBInterface;
 import net.sourcedestination.sai.db.graph.GraphDeserializer;
 import net.sourcedestination.sai.experiment.learning.ClassificationModelGenerator;
@@ -13,6 +11,7 @@ import net.sourcedestination.sai.experiment.retrieval.QueryGenerator;
 import net.sourcedestination.sai.experiment.retrieval.Retriever;
 import net.sourcedestination.sai.util.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -163,13 +164,15 @@ public class TasksController {
         Map<String, QueryGenerator> generators = appContext.getBeansOfType(QueryGenerator.class);
         model.put("generators", generators.keySet());
 
+        // find logs
+        model.put("logs", reportsController.getLogNames());
+
         // find log processors
-        Map<String, ExperimentLogProcessorFactory> logProcessors =
-                appContext.getBeansOfType(ExperimentLogProcessorFactory.class);
+        Map<String, ExperimentLogProcessor.Factory> logProcessors =
+                appContext.getBeansOfType(ExperimentLogProcessor.Factory.class);
         Map<String, String> logProcessorInfo = logProcessors.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> e.getValue().getClass().getSimpleName()));
-
         model.put("logprocessors", logProcessorInfo);
 
         Map<String, ClassificationModelGenerator> classifiers =
@@ -197,18 +200,6 @@ public class TasksController {
                                         @RequestParam(name = "processors[]", required = false)
                                                     String[] graphProcessingBeanNames) {
         Retriever retriever = (Retriever) appContext.getBean(retrieverName);
-
-        // find graph processing beans
-        final GraphProcessor[] graphProcessingBeans;
-        if(graphProcessingBeanNames != null) {
-            graphProcessingBeans = new GraphProcessor[graphProcessingBeanNames.length];
-            for(int i=0; i<graphProcessingBeanNames.length; i++)
-                graphProcessingBeans[i] = ((GraphProcessor) appContext.getBean(graphProcessingBeanNames[i]));
-
-        } else {
-            graphProcessingBeans = new GraphProcessor[0];
-        }
-
 
         final QueryGenerator gen;
         if(generator != null && generator.length() > 0 &&
@@ -259,7 +250,9 @@ public class TasksController {
             logProcessingBeans = new ExperimentLogProcessor[logProcessingBeanNames.length];
             for(int i=0; i<logProcessingBeanNames.length; i++)
                 logProcessingBeans[i] =
-                        ((ExperimentLogProcessorFactory)
+                        (ExperimentLogProcessor)   // TODO: this cast shouldn't be necessary because of bounds on the type,
+                                //// but compiler is mad about it... check back on it later
+                        ((ExperimentLogProcessor.Factory)
                           appContext.getBean(logProcessingBeanNames[i])
                         ).get();
 
@@ -267,7 +260,9 @@ public class TasksController {
             logProcessingBeans = new ExperimentLogProcessor[0];
         }
 
-        LogFileProcessor task = new LogFileProcessor(file.getInputStream(), file.getSize(), logProcessingBeans);
+        LogProcessingTask task = new LogProcessingTask(
+                new BufferedReader(new InputStreamReader(file.getInputStream())).lines(),
+                logProcessingBeans);
         addTask(task, report -> {
             reportsController.addReport(report);
         });

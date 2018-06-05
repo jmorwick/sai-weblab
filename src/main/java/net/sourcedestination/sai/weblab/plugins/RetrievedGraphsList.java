@@ -1,7 +1,6 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
-import net.sourcedestination.sai.analysis.ExperimentLogProcessorFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public class RetrievedGraphsList implements ExperimentLogProcessor {
         return model;
     }
 
-    public static ExperimentLogProcessorFactory getFactory() {
+    public static ExperimentLogProcessor.Factory getFactory() {
         return RetrievedGraphsList::new;
     }
 
