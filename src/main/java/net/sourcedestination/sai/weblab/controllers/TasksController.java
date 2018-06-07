@@ -92,6 +92,8 @@ public class TasksController {
         startTimes.put(id, new Date());
         trackedTasks.put(id, t);
         long startTime = System.nanoTime();
+        logger.info("task name: " + t.getTaskName());
+        logger.info(""+t.getClass());
         logger.info("starting task :" + t.getTaskName() + " with autologging set to " + autolog);
         if(autolog)
             startLogging();
@@ -280,7 +282,8 @@ public class TasksController {
     }
 
     @PostMapping("/tasks/process-log-file")
-    public RedirectView loadReport(@RequestParam("file") MultipartFile file,
+    public RedirectView loadReport(@RequestParam(name="file", required=false) MultipartFile logFile,
+                                   @RequestParam(name="log", required=false) String logName,
                                    @RequestParam(name = "processors[]", required = false)
                                            String[] logProcessingBeanNames)
             throws IOException {
@@ -301,9 +304,17 @@ public class TasksController {
             logProcessingBeans = new ExperimentLogProcessor[0];
         }
 
-        LogProcessingTask task = new LogProcessingTask(
-                new BufferedReader(new InputStreamReader(file.getInputStream())).lines(),
-                logProcessingBeans);
+        Stream<String> log;
+        if(logFile != null) {
+            log = new BufferedReader(new InputStreamReader(logFile.getInputStream())).lines();
+        } else if(logName != null) {
+            log = reportsController.getLog(logName);
+            if(logName == null) throw new IllegalArgumentException("log does not exist: " + logName);
+        } else {
+            throw new IllegalArgumentException("either the log name or a uploaded log file must be provided in the request");
+        }
+
+        LogProcessingTask task = new LogProcessingTask(log, logProcessingBeans);
         addTask(task, report -> {
             reportsController.addReport(report);
         });
@@ -313,6 +324,5 @@ public class TasksController {
     private void setAutolog(boolean autolog) {
         this.autolog = autolog;
     }
-
 
 }
