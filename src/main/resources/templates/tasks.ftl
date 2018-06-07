@@ -1,4 +1,15 @@
 <#include "header.ftl">
+<script>
+    var currenttaskform = null;
+    function switchtask(form) {
+        if(currenttaskform != null)
+            currenttaskform.style.display="none";
+        currenttaskform=document.getElementById(form.value+"-taskform");
+        if(currenttaskform != null)
+            currenttaskform.style.display="block";
+    }
+</script>
+
 <div class="container">
     <h2>Manage Tasks</h2>
 
@@ -11,12 +22,6 @@
         </#list>
     </ul>
 
-    <legend>Launch Task:</legend>
-
-    <#include "tasks/populate.ftl">
-    <#include "tasks/retrieval.ftl">
-    <#include "tasks/process-log.ftl">
-
     <legend>Inactive Tasks:</legend>
     <ul>
         <#list inactivetasks as taskid, taskname>
@@ -25,6 +30,18 @@
         </div>
         </#list>
     </ul>
+
+    <legend>Launch Task:</legend>
+    <select onchange="switchtask(this)">
+        <option selected>none</option>
+    <#list tasks as view, name>
+        <option>${name}</option>
+    </#list></select>
+    <#list tasks as view, name>
+        <div class="task-form" id="${name}-taskform" style="display: none">
+            <#include "tasks/${view}.ftl">
+        </div>
+    </#list>
 
 </div>
 <#include "footer.ftl">

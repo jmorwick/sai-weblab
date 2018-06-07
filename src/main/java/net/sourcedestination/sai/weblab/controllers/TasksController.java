@@ -230,6 +230,13 @@ public class TasksController {
         model.put("taskTimes", taskTimes);
         model.put("percentagecomplete", percentageComplete);
         model.put("progress", progress);
+
+        model.put("tasks", Map.ofEntries(
+                Map.entry("populate", "Populate a Database"),
+                Map.entry("retrieval", "Retrieve Graphs from a Database"),
+                Map.entry("classification", "Run a Classification Experiment"),
+                Map.entry("process-log", "Process an Experiment Log")
+        ));
         return "tasks";
     }
 
