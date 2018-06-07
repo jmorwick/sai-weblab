@@ -4,6 +4,12 @@
     function switchtask(form) {
         if(currenttaskform != null)
             currenttaskform.style.display="none";
+        else {
+            forms = document.getElementsByClassName('task-form');
+            for (i = 0; i < forms.length; i++)
+                forms[i].style.display = "none";
+        }
+
         currenttaskform=document.getElementById(form.value+"-taskform");
         if(currenttaskform != null)
             currenttaskform.style.display="block";
@@ -33,12 +39,12 @@
 
     <legend>Launch Task:</legend>
     <select onchange="switchtask(this)">
-        <option selected>none</option>
     <#list tasks as view, name>
-        <option>${name}</option>
-    </#list></select>
+        <option <#if name?is_first>SELECTED</#if>>${name}</option>
+    </#list>
+    </select>
     <#list tasks as view, name>
-        <div class="task-form" id="${name}-taskform" style="display: none">
+        <div class="task-form" id="${name}-taskform" style="display: <#if name?is_first>block<#else>none</#if>">
             <#include "tasks/${view}.ftl">
         </div>
     </#list>
