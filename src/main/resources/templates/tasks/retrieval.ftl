@@ -1,14 +1,27 @@
 <script>
+    var noquerygenerators = new Set();
+    <#list noquery as genname>
+        noquerygenerators.add('${genname}');
+    </#list>
     function generatorSwitch(form) {
         gen = form.elements['generator'];
         query = form.elements['query'];
         format = form.elements['format'];
-        if(gen.value == 'manual') {
-            query.hidden = false;
-            format.hidden = false;
-        } else  {
+        ret = form.elements['retriever'];
+        if(noquerygenerators.has(ret.value)) {
             query.hidden = true;
             format.hidden = true;
+            gen.hidden = true;
+            gen.selectedIndex = 0;
+        } else {
+            gen.hidden = false;
+            if(gen.value == 'manual') {
+                query.hidden = false;
+                format.hidden = false;
+            } else  {
+                query.hidden = true;
+                format.hidden = true;
+            }
         }
     }
 
@@ -22,12 +35,12 @@
     }
 </script>
 
-<form action="/tasks/retrieval" method="post" ID="simple-retrieval-form" onsubmit="submitRetrievalForm(this)">
+<form action="/tasks/retrieval" method="post" ID="simple-retrieval-form" onsubmit="submitRetrievalForm(this)" onload="generatorSwitch(this)">
     <legend>Retreival Experiment</legend>
     <div class="form-group">
 
         <label>Retriever</label>
-        <select class="form-control" name="retriever">
+        <select class="form-control" name="retriever" onchange="generatorSwitch(this.form)">
         <#list retrievers as retrievername>
             <option>${retrievername}</option>
         </#list>
@@ -35,8 +48,8 @@
 
         <label>Query Generator</label>
         <select class="form-control" name="generator" onchange="generatorSwitch(this.form)">
-            <option>manual</option>
             <option>none</option>
+            <option>manual</option>
         <#list generators as generator>
             <option>${generator}</option>
         </#list>

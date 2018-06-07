@@ -201,7 +201,12 @@ public class TasksController {
 
         // find retrievers
         Map<String, Retriever> retrievers = appContext.getBeansOfType(Retriever.class);
+        List<String> noQuery = retrievers.entrySet().stream()
+                .filter(e -> e.getValue().ignoresQueries())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
         model.put("retrievers", retrievers.keySet());
+        model.put("noquery", noQuery); // these retrievers don't need to be issued queries
 
         // find query generators
         Map<String, QueryGenerator> generators = appContext.getBeansOfType(QueryGenerator.class);
