@@ -31,7 +31,7 @@ public class ReportsController {
     @Autowired
     private ApplicationContext appContext;
 
-    private boolean autolog;
+    private boolean autolog = true;
 
     private final Map<Integer, Map<String, ? extends Object>> reportModels = new ConcurrentHashMap<>();
     private final Map<String, Supplier<Stream<String>>> logs = new ConcurrentHashMap<>();

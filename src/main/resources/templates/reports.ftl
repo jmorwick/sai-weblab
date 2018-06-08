@@ -10,8 +10,16 @@
         </#list>
     </ul>
 
+    <legend>Available Logs</legend>
+    <ul>
+        <#list logids as id>
+            <div class="row">
+                <li> <a href="/reports/log/${id}">#${id} </a></li>
+            </div>
+        </#list>
+    </ul>
+<#if !autolog>
     <legend>Start / Stop Listening to Log Messages</legend>
-
     <form method="POST" action="/reports/start-listening">
         <select name="appender" multiple>
         <#list inactiveappenders as name>
@@ -29,15 +37,6 @@
         </select>
         <input type="submit" name="Stop Listening"/>
     </form>
-
-    <legend>Available Logs</legend>
-    <ul>
-        <#list logids as id>
-            <div class="row">
-                <li> <a href="/reports/log/${id}">#${id} </a></li>
-            </div>
-        </#list>
-    </ul>
-
+</#if>
 <div>
 <#include "footer.ftl">
