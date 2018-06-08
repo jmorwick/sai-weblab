@@ -56,8 +56,8 @@ public class TasksController {
     private Map<Integer,Date> startTimes = new HashMap<>();
     private Map<Integer,Date> endTimes = new HashMap<>();
     private Map<Integer, Long> taskTimes = new HashMap<>();
-    private Map<String, String> taskLogNames = new HashMap<>();
-    private Multimap<String, String> taskReportNames = HashMultimap.create();
+    private BiMap<String, String> taskLogNames = HashBiMap.create();
+    private Map<String, Set<String>> taskReportNames = new HashMap<>();
 
     public synchronized int addTask(Task t) {
         return addTask(t, x -> {});
@@ -333,7 +333,17 @@ public class TasksController {
 
         LogProcessingTask task = new LogProcessingTask(log, logProcessingBeans);
         addTask(task, report -> {
-            reportsController.addReport(report);
+            String reportName = "" + reportsController.addReport(report);
+            String taskName = ""+trackedTasks.inverse().get(task);
+            if(!taskReportNames.containsKey(taskName))
+                taskReportNames.put(taskName, new HashSet<>());
+            taskReportNames.get(taskName).add(reportName);
+            if(taskLogNames.containsValue(logName)) {
+                taskName = ""+taskLogNames.inverse().get(logName);
+                if(!taskReportNames.containsKey(taskName))
+                    taskReportNames.put(taskName, new HashSet<>());
+                taskReportNames.get(taskName).add(reportName);
+            }
         });
         return new RedirectView("/tasks");
     }

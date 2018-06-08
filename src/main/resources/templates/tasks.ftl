@@ -35,12 +35,17 @@
             <li>#${taskid} - ${taskname} (${startTimes[taskid]} - ${endTimes[taskid]}) | Task Took ${taskTimes[taskid]}ms to finish.
             <#if tasklogs?keys?seq_contains(taskid)><ul>
                 <li><a href="/reports/log/${tasklogs[taskid]}">(log: ${tasklogs[taskid]})</a></li>
+                <#if taskreports?keys?seq_contains(taskid)>
+                    <#list taskreports[taskid] as reportid>
+                        <li><a href="/reports/view/${reportid}">(report: ${reportid})</a></li>
+                    </#list>
+                </#if>
             </ul></#if>
             </li>
         </div>
         </#list>
     </ul>
-    
+
     <legend>Launch Task:</legend>
     <select onchange="switchtask(this)">
     <#list tasks as view, name>
