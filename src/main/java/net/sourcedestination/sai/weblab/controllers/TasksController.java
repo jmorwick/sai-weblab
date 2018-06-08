@@ -3,7 +3,7 @@ package net.sourcedestination.sai.weblab.controllers;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
 import net.sourcedestination.sai.analysis.LogProcessingTask;
 import net.sourcedestination.sai.db.DBInterface;
@@ -16,7 +16,6 @@ import net.sourcedestination.sai.reporting.logging.InteractiveAppender;
 import net.sourcedestination.sai.util.Task;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,11 +51,13 @@ public class TasksController {
     private boolean autolog = true;
 
     private int nextTaskId = 1;
-    private Map<Integer,Task> trackedTasks = new HashMap<>();
+    private BiMap<Integer,Task> trackedTasks = HashBiMap.create();
     private Map<Integer,CompletableFuture> taskFutures = new HashMap<>();
     private Map<Integer,Date> startTimes = new HashMap<>();
     private Map<Integer,Date> endTimes = new HashMap<>();
     private Map<Integer, Long> taskTimes = new HashMap<>();
+    private Map<String, String> taskLogNames = new HashMap<>();
+    private Multimap<String, String> taskReportNames = HashMultimap.create();
 
     public synchronized int addTask(Task t) {
         return addTask(t, x -> {});
@@ -82,7 +83,9 @@ public class TasksController {
         for(InteractiveAppender a = (InteractiveAppender)i.next();
             a != null;
             a = i.hasNext() ? (InteractiveAppender)i.next() : null) {
-            reportsController.addLog(t.getTaskName(), a.stopListening());
+                String logName = t.getTaskName();
+                reportsController.addLog(logName, a.stopListening());
+                taskLogNames.put("" + trackedTasks.inverse().get(t), logName);
         }
     }
 
@@ -230,6 +233,8 @@ public class TasksController {
         model.put("classifiers", classifiers.keySet());
         model.put("activetasks", activeTasks);
         model.put("inactivetasks", inactiveTasks);
+        model.put("tasklogs", taskLogNames);
+        model.put("taskreports", taskReportNames);
         model.put("startTimes", startTimes);
         model.put("endTimes", endTimes);
         model.put("taskTimes", taskTimes);
