@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.google.common.collect.Sets;
 import net.sourcedestination.sai.reporting.logging.InteractiveAppender;
+import net.sourcedestination.sai.reporting.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,12 +108,14 @@ public class ReportsController {
                        @PathVariable("reportid") int reportid) {
         model.put("reportid", ""+reportid);
 
+        Report fullReport = new Report();
         synchronized (reportModels) {
-            model.putAll(reportModels.get(reportid));
+            fullReport.putAll(reportModels.get(reportid));
         }
 
         // TODO: convert model to JSON and add JSON string to the model
-
+        model.put("json", fullReport.toJson());
+        model.putAll(fullReport);
 
         if(model.containsKey("view")) {
             return model.get("view").toString();
