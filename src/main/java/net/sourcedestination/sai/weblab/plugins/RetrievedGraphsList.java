@@ -1,6 +1,7 @@
 package net.sourcedestination.sai.weblab.plugins;
 
 import net.sourcedestination.sai.analysis.ExperimentLogProcessor;
+import net.sourcedestination.sai.reporting.Report;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,8 +24,8 @@ public class RetrievedGraphsList implements ExperimentLogProcessor {
     }
 
     @Override
-    public Map<String,Object> get() {
-        Map<String,Object> model = new HashMap<>();
+    public Report get() {
+        Report model = new Report();
         model.put("retrievedgraphs", retrievedGraphIds);
         model.put("view", "retrieval-report");
         return model;
