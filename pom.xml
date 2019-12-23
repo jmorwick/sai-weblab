@@ -103,5 +103,6 @@
       <id>packagecloud-jbkm</id>
       <url>packagecloud+https://packagecloud.io/jbkm/sourcedestination-staging</url>
     </snapshotRepository>
+  </distributionManagement>
 
 </project>
