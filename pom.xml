@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sourcedestination</groupId>
   <artifactId>sai-weblab</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <description>Web-based interface for experimenting with SAI (the Structure Access Interface).</description>
   <organization>
     <name>Source Destination</name>
@@ -28,6 +28,13 @@
         </configuration>
       </plugin>
     </plugins>
+  <extensions>
+    <extension>
+      <groupId>io.packagecloud.maven.wagon</groupId>
+      <artifactId>maven-packagecloud-wagon</artifactId>
+      <version>0.0.4</version>
+    </extension>
+  </extensions>
   </build>
 
   <properties>
@@ -76,4 +83,25 @@
       <version>2.3.1</version>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>jbkm-sourcedestination-staging</id>
+      <url>https://packagecloud.io/jbkm/sourcedestination-staging/maven2</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>github packages repository</name>
+      <url>https://maven.pkg.github.com/jmorwick</url>
+    </repository>  
+    <snapshotRepository>
+      <id>packagecloud-jbkm</id>
+      <url>packagecloud+https://packagecloud.io/jbkm/sourcedestination-staging</url>
+    </snapshotRepository>
+
 </project>
